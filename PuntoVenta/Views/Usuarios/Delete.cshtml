@@ -1,0 +1,18 @@
+﻿@model PuntoVenta.Models.Usuario
+
+@{
+    ViewBag.Title = "Eliminar Usuario";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<h3>¿Estás seguro de que deseas eliminar este usuario?</h3>
+<div>
+    <h4>Nombre de Usuario: @Model.strNombre</h4>
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Eliminar" class="btn btn-danger" />
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
