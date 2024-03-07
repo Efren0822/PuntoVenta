@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PuntoVenta.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using PuntoVenta.ViewModels;
+using PuntoVenta.Helpers;
 
 namespace PuntoVenta.Controllers
 {
@@ -11,9 +17,12 @@ namespace PuntoVenta.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public UsuariosController(ApplicationDbContext context)
+        private readonly ILogger<UsuariosController> _logger;
+
+        public UsuariosController(ApplicationDbContext context, ILogger<UsuariosController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public IActionResult Index(int pagina = 1)
@@ -22,7 +31,7 @@ namespace PuntoVenta.Controllers
             int registroPorPagina = 10;
             int totalPaginas = (int)Math.Ceiling((double)totalRegistros / registroPorPagina);
 
-            // Obtener la lista de usuarios paginada
+
             List<UsuarioViewModel> usuarios = _context.UsuUsuario
                 .Include(u => u.Estado)
                 .Include(u => u.TipoUsuario)
@@ -43,29 +52,255 @@ namespace PuntoVenta.Controllers
             return View(usuarios);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id)
+
+
+        private int ObtenerIdEstado()
         {
-            // Redirigir a la acción Edit con el ID del usuario
-            return RedirectToAction("Edit", new { id });
+            var estadoDefecto = _context.UsuCatEstado.FirstOrDefault(e => e.strNombreEstado.Equals("Activo"));
+            if (estadoDefecto == null)
+            {
+                throw new InvalidOperationException("No se encontro el estado por defecto");
+            }
+            return estadoDefecto.Id;
+
+        }
+
+        private int ObtenerIdTipoUsuario()
+        {
+            var tipoUsuarioD = _context.UsuCatTipoUsuario.FirstOrDefault(t => t.strTipoUsuario.Equals("Usuario Normal"));
+            if (tipoUsuarioD == null)
+            {
+                throw new InvalidOperationException("No se encontro el estado por defecto");
+            }
+            return tipoUsuarioD.Id;
+        }
+
+
+       
+        public ActionResult Login()
+        {
+            return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public ActionResult Login(LoginViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            string username = model.Username.ToLower();
+            var user = _context.UsuUsuario.FirstOrDefault(
+                u => u.strNombre == username);
+
+            if (user != null && user.strPassword == model.Password)
+            {
+                TempData["Mensaje"] = "¡Bienvenido, " + user.strNombre + "!";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Nombre de usuario y/o contraseña incorrectos.");
+                return View(model);
+            }
+        }
+
+        
+
+        public IActionResult Borrar(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var usuario = _context.UsuUsuario.Find(id);
             if (usuario == null)
             {
                 return NotFound();
             }
 
+            return View(usuario);
+        }
+
+        [HttpPost, ActionName("Borrar")]
+        [ValidateAntiForgeryToken]
+        public IActionResult ConfirmarBorrar(int id)
+        {
+            var usuario = _context.UsuUsuario.Find(id);
             _context.UsuUsuario.Remove(usuario);
             _context.SaveChanges();
-
-            // Redirigir a la acción Index después de eliminar el usuario
             return RedirectToAction(nameof(Index));
         }
+
+        private bool UsuarioExists(int id)
+        {
+            return _context.UsuUsuario.Any(e => e.Id == id);
+        }
+
+
+
+        public ActionResult Create()
+        {
+            ViewBag.Estado = _context.UsuCatEstado
+        .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.strNombreEstado })
+        .ToList();
+            ViewBag.TipoUsuario = _context.UsuCatTipoUsuario
+                        .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.strTipoUsuario })
+                        .ToList();
+            return View();
+        }
+
+
+
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Usuario usuario)
+        {
+            string errorMessage = "";
+
+            if (ModelState.IsValid)
+            {
+                if (usuario.IdUsuCatEstado == 0 && usuario.IdUsuCatTipoUsuario == 0)
+                {
+                    ModelState.AddModelError("EstadoId", "Debe seleccionar un estado.");
+                    ModelState.AddModelError("TipoUsuario", "Debe seleccionar un tipo de usuario.");
+                    ViewBag.Estado = _context.UsuCatEstado
+                        .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.strNombreEstado })
+                        .ToList();
+                    ViewBag.TipoUsuario = _context.UsuCatTipoUsuario
+                                .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.strTipoUsuario })
+                                .ToList();
+                    return View(usuario);
+                }
+
+                usuario.strPassword = Encriptacion.Encriptar(usuario.strPassword);
+            }
+            else
+            {
+                errorMessage = "ModelState.IsValid fue falso. Los errores de validación son los siguientes:";
+                foreach (var value in ModelState.Values)
+                {
+                    foreach (var error in value.Errors)
+                    {
+                        errorMessage += $" {error.ErrorMessage}";
+                    }
+                }
+            }
+
+            try
+            {
+                
+                _context.UsuUsuario.Add(usuario);
+                _context.SaveChanges();
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                errorMessage += $" Ocurrió un error al guardar el usuario en la base de datos: {ex.Message}.";
+            }
+
+            ModelState.AddModelError("", $"Ocurrió un error: {errorMessage} Por favor, inténtelo de nuevo más tarde.");
+
+            ViewBag.Estado = _context.UsuCatEstado
+                .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.strNombreEstado })
+                .ToList();
+            ViewBag.TipoUsuario = _context.UsuCatTipoUsuario
+                        .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.strTipoUsuario })
+                        .ToList();
+            return View(usuario);
+        }
+
+
+
+        public IActionResult Detalles(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = _context.UsuUsuario.FirstOrDefault(u => u.Id == id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+            return View(usuario);
+        }
+
+
+        public IActionResult Editar(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = _context.UsuUsuario.FirstOrDefault(u => u.Id == id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            var estados = _context.UsuCatEstado
+                .Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.strNombreEstado
+                })
+                .ToList();
+
+            var tiposUsuario = _context.UsuCatTipoUsuario
+                .Select(t => new SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = t.strTipoUsuario
+                })
+                .ToList();
+
+            ViewBag.Estados = estados;
+            ViewBag.TiposUsuario = tiposUsuario;
+
+            return View(usuario);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Editar(int id, [Bind("Id,strNombre,IdUsuCatEstado,IdUsuCatTipoUsuario")] Usuario usuario)
+        {
+            if (id != usuario.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(usuario);
+                    _context.SaveChanges();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Ocurrió un error al guardar los cambios: " + ex.Message);
+                    // Mantener los elementos ViewBag.Estados y ViewBag.TiposUsuario
+                    return View(usuario);
+                }
+            }
+
+            // El modelo no es válido, por lo tanto, mantener los elementos ViewBag.Estados y ViewBag.TiposUsuario
+            return View(usuario);
+        }
+
+
+
+
+
+
     }
+
 }
+

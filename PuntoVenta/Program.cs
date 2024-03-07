@@ -17,7 +17,7 @@ var connectionString = builder.Configuration.GetConnectionString("SqlServerConne
 builder.Services.AddControllersWithViews();
 
 
-// Agregar DbContext a los servicios y configurar la conexión a la base de datos SQL Serverbuilder.Services.AddDbContext<ApplicationDbContext>(options =>
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
 {
@@ -25,10 +25,14 @@ options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
 }));
 
 
+
 /*
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString,
     ServerVersion.Parse("8.0.28")));
+
 */
+
+
 var app = builder.Build();
 
 // Configurar el pipeline de solicitud HTTP.
@@ -47,6 +51,8 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Usuarios}/{action=Index}/{id?}");
+    pattern: "{controller=Usuarios}/{action=Login}/{id?}");
+
+
 
 app.Run();

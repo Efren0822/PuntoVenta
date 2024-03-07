@@ -1,0 +1,38 @@
+﻿@model PuntoVenta.Models.LoginViewModel
+
+@{
+    ViewBag.Title = "Inicio de sesión";
+}
+
+<h2>Iniciar sesión</h2>
+
+@using (Html.BeginForm("Login", "Usuarios", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Username)
+        @Html.TextBoxFor(m => m.Username, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Username)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Password)
+        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Password)
+    </div>
+
+    <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+}
+
+@if (TempData["Mensaje"] != null)
+{
+    
+    <script> 
+        window.location = '@Url.Content("~/Views/Usuarios/Index.cshtml")';
+        <div class="alert alert-success" > @TempData["Mensaje"]</div>
+    </script>
+}
+
+@* Agregar botón para redirigir a la vista de registro *@
+@Html.ActionLink("¿No tienes una cuenta? Regístrate aquí", "Create", "Usuarios", null, new { @class = "btn btn-link" })

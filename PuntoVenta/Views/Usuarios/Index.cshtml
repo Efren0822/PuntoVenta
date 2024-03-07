@@ -12,7 +12,8 @@
 <body>
 
     <div class="search-container">
-        <a href="" class="btn btn-success">Agregar usuario</a>
+       
+        <a asp-action="Create" asp-controller="Usuarios" class="btn btn-success">Agregar usuario</a>
 
 
         <input type="text" id="search-input" placeholder="Buscar por nombre" oninput="searchUsers()" />
@@ -48,8 +49,10 @@
                         <td>@usuario.NombreEstado</td>
                         <td>@usuario.NombreTipoUsuario</td>
                         <td>
-                            <a asp-action="Edit" asp-controller="Usuarios" asp-route-id="@usuario.Id" class="btn btn-primary">Editar</a>
-                            <a asp-action="Delete" asp-controller="Usuarios" asp-route-id="@usuario.Id" class="btn btn-danger">Eliminar</a>
+                           <!-- <a asp-action="Edit" asp-controller="UsuariosController" asp-route-id="@usuario.Id" class="btn btn-primary">Editar</a>
+                            <a asp-action="Delete" asp-controller="UsuariosController" asp-route-id="@usuario.Id" class="btn btn-danger">Eliminar</a>
+                             -->
+                            @Html.ActionLink("Detalles", "Detalles", new { id = usuario.Id }, new { @class = "btn btn-info" })
 
                         </td>
                     </tr>

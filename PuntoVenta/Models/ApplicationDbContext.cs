@@ -8,6 +8,18 @@ namespace PuntoVenta.Models
         {
         }
         public DbSet<Usuario> UsuUsuario { get; set; }
-    }
+        public DbSet<UsuCatEstado> UsuCatEstado { get; set; }
+        public DbSet<UsuCatTipoUsuario> UsuCatTipoUsuario { get; set; }
 
-}
+        public DbSet<User> Registros { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Usuario>().ToTable("UsuUsuario");
+
+        }
+
+    }
+    }

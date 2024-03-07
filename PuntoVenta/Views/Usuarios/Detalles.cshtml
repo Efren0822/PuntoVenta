@@ -1,0 +1,10 @@
+﻿@model PuntoVenta.Models.Usuario
+
+<h2>Detalles del Usuario</h2>
+
+<p><strong>Nombre:</strong> @Model.strNombre</p>
+<p><strong>Estado:</strong> @Model.Estado</p>
+<p><strong>Tipo de Usuario:</strong> @Model.TipoUsuario</p>
+
+<a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+@Html.ActionLink("Borrar", "Borrar", new { id = Model.Id })
