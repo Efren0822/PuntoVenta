@@ -1,0 +1,99 @@
+﻿@model List<PuntoVenta.Models.Products>
+@{
+    ViewBag.Title = "Productos";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<head>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="search-container">
+        <input type="text" id="name-search-input" placeholder="Buscar por nombre" oninput="searchProducts()" />
+        <input type="text" id="category-search-input" placeholder="Buscar por categoría" oninput="searchProducts()" />
+        <input type="text" id="subcategory-search-input" placeholder="Buscar por subcategoría" oninput="searchProducts()" />
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Nombre del Producto</th>
+                    <th>Descripción</th>
+                    <th>Categoría</th>
+                    <th>Subcategoría</th>
+                    <th>maximo</th>
+                    <th>minimo</th>
+                    <th>Stock</th>
+                    <th>Costo</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="product-table-body">
+                @foreach (var producto in Model)
+                {
+                    <tr>
+                        <td>@producto.StrNombrePro</td>
+                        <td>@producto.StrDescriptcion</td>
+                        <td>
+                            @{
+                                var categoria = producto.Categoria;
+                                if (categoria != null)
+                                {
+                                    @categoria.strNombreCategoria
+                                }
+                            }
+                        </td>
+                        <td>
+                            @{
+                                var subcategoria = producto.SubCategoria;
+                                if (subcategoria != null)
+                                {
+                                    @subcategoria.strNombreSubCategoria
+                                }
+                            }
+                        </td>
+                        <td>@producto.decMaximo</td>
+                        <td>@producto.decMinimo</td>
+                        <td>@producto.intStock</td>
+                        <td>@producto.curCosto</td>
+                        <td>@producto.curPrecio</td>
+                        <td>
+                            <!-- Acciones -->
+                            @Html.ActionLink("Detalles", "Detalles", new { id = producto.IdPro }, new { @class = "btn btn-info" })
+                            @Html.ActionLink("Editar", "Editar", new { id = producto.IdPro }, new { @class = "btn btn-primary" })
+                            @Html.ActionLink("Eliminar", "Eliminar", new { id = producto.IdPro }, new { @class = "btn btn-danger", onclick = "return confirm('¿Está seguro de querer eliminar este producto?');" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    function searchProducts() {
+        var nameInput = document.getElementById("name-search-input").value.toUpperCase();
+        var categoryInput = document.getElementById("category-search-input").value.toUpperCase();
+        var subcategoryInput = document.getElementById("subcategory-search-input").value.toUpperCase();
+
+        var tableBody = document.getElementById("product-table-body");
+        var rows = tableBody.getElementsByTagName("tr");
+
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var nameColumn = row.getElementsByTagName("td")[0].textContent.toUpperCase();
+            var categoryColumn = row.getElementsByTagName("td")[2].textContent.toUpperCase();
+            var subcategoryColumn = row.getElementsByTagName("td")[3].textContent.toUpperCase();
+
+            var nameMatch = nameColumn.includes(nameInput);
+            var categoryMatch = categoryColumn.includes(categoryInput) || categoryInput === "";
+            var subcategoryMatch = subcategoryColumn.includes(subcategoryInput) || subcategoryInput === "";
+
+            row.style.display = (nameMatch && categoryMatch && subcategoryMatch) ? "" : "none";
+        }
+    }
+</script>
+
