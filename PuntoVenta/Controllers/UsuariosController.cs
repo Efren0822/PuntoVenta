@@ -220,14 +220,18 @@ namespace PuntoVenta.Controllers
                 return NotFound();
             }
 
-            var usuario = _context.UsuUsuario.FirstOrDefault(u => u.Id == id);
+            var usuario = _context.UsuUsuario
+                .Include(u => u.Estado)
+                .Include(u => u.TipoUsuario)
+                .FirstOrDefault(u => u.Id == id);
+
             if (usuario == null)
             {
                 return NotFound();
             }
+
             return View(usuario);
         }
-
 
         public IActionResult Editar(int? id)
         {
