@@ -4,38 +4,32 @@
 {
     @Html.AntiForgeryToken()
 
-    <div class="form-horizontal">
+    <div class="container mx-auto">
         <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.ValidationSummary(true, "", new { @class = "text-red-500" })
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.strNombre, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.strNombre, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.strNombre, "", new { @class = "text-danger" })
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group">
+                @Html.LabelFor(model => model.strNombre, htmlAttributes: new { @class = "block text-gray-700 font-bold mb-2" })
+                @Html.EditorFor(model => model.strNombre, new { htmlAttributes = new { @class = "form-input" } })
+                @Html.ValidationMessageFor(model => model.strNombre, "", new { @class = "text-red-500" })
+            </div>
+
+            <div class="form-group">
+                @Html.Label("Estado", "Estado", htmlAttributes: new { @class = "block text-gray-700 font-bold mb-2" })
+                @Html.DropDownListFor(model => model.IdUsuCatEstado, (IEnumerable<SelectListItem>)ViewBag.Estados, "Seleccione...", new { @class = "form-select", id = "Id" })
+                @Html.ValidationMessageFor(model => model.IdUsuCatEstado, "", new { @class = "text-red-500" })
+            </div>
+
+            <div class="form-group">
+                @Html.Label("Tipo Usuario", "TipoUsuario", htmlAttributes: new { @class = "block text-gray-700 font-bold mb-2" })
+                @Html.DropDownListFor(model => model.IdUsuCatTipoUsuario, (IEnumerable<SelectListItem>)ViewBag.TiposUsuario, "Seleccione...", new { @class = "form-select", id = "Id" })
+                @Html.ValidationMessageFor(model => model.IdUsuCatTipoUsuario, "", new { @class = "text-red-500" })
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.Label("Estado", "Estado", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.IdUsuCatEstado, (IEnumerable<SelectListItem>)ViewBag.Estados, "Seleccione...", new { @class = "form-control", id = "Id" })
-                @Html.ValidationMessageFor(model => model.IdUsuCatEstado, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.Label("Tipo Usuario", "TipoUsuario", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.IdUsuCatTipoUsuario, (IEnumerable<SelectListItem>)ViewBag.TiposUsuario, "Seleccione...", new { @class = "form-control", id = "Id" })
-                @Html.ValidationMessageFor(model => model.IdUsuCatTipoUsuario, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Guardar" class="btn btn-primary" />
-            </div>
+        <div class="form-group mt-4">
+            <input type="submit" value="Guardar" class="btn btn-primary" />
         </div>
     </div>
 }

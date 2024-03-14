@@ -89,14 +89,12 @@ namespace PuntoVenta.Controllers
             {
                 return View(model);
             }
-
             string username = model.Username.ToLower();
-            var user = _context.UsuUsuario.FirstOrDefault(
-                u => u.strNombre == username);
+            var user = _context.UsuUsuario.Any(u => u.strNombre == username && u.strPassword == model.Password);
 
-            if (user != null && user.strPassword == model.Password)
+            if (user)
             {
-                TempData["Mensaje"] = "¡Bienvenido, " + user.strNombre + "!";
+                TempData["Mensaje"] = "¡Bienvenido, " + model.Username + "!";
                 return RedirectToAction("Index");
             }
             else
@@ -195,7 +193,7 @@ namespace PuntoVenta.Controllers
                 
                 _context.UsuUsuario.Add(usuario);
                 _context.SaveChanges();
-                return RedirectToAction("Login");
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
@@ -286,13 +284,12 @@ namespace PuntoVenta.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", "Ocurrió un error al guardar los cambios: " + ex.Message);
-                    // Mantener los elementos ViewBag.Estados y ViewBag.TiposUsuario
+                    
                     return View(usuario);
                 }
             }
 
-            // El modelo no es válido, por lo tanto, mantener los elementos ViewBag.Estados y ViewBag.TiposUsuario
-            return View(usuario);
+             return View(usuario);
         }
 
 

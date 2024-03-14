@@ -3,36 +3,61 @@
 @{
     ViewBag.Title = "Inicio de sesión";
 }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-<h2>Iniciar sesión</h2>
+<h2 class="text-2xl font-bold mb-4">Iniciar sesión</h2>
 
-@using (Html.BeginForm("Login", "Usuarios", FormMethod.Post))
+@using (Html.BeginForm("Login", "Usuarios", FormMethod.Post, new { @class = "mt-4" }))
 {
     @Html.AntiForgeryToken()
 
-    <div class="form-group">
-        @Html.LabelFor(m => m.Username)
-        @Html.TextBoxFor(m => m.Username, new { @class = "form-control" })
-        @Html.ValidationMessageFor(m => m.Username)
+    <div class="mb-4">
+        @Html.LabelFor(m => m.Username, new { @class = "block text-gray-700 font-bold mb-2" })
+        @Html.TextBoxFor(m => m.Username, new { @class = "form-input w-full" })
+        @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-red-500" })
     </div>
 
-    <div class="form-group">
-        @Html.LabelFor(m => m.Password)
-        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
-        @Html.ValidationMessageFor(m => m.Password)
+    <div class="mb-4">
+        @Html.LabelFor(m => m.Password, new { @class = "block text-gray-700 font-bold mb-2" })
+        @Html.PasswordFor(m => m.Password, new { @class = "form-input w-full" })
+        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-red-500" })
     </div>
 
-    <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+    <button type="submit" class="btn btn-primary" onclick="validateForm(event)">Iniciar sesión</button>
 }
 
 @if (TempData["Mensaje"] != null)
 {
-    
-    <script> 
-        window.location = '@Url.Content("~/Views/Usuarios/Index.cshtml")';
-        <div class="alert alert-success" > @TempData["Mensaje"]</div>
+    <script>
+        Swal.fire({
+            title: 'Inicio de sesión exitoso',
+            text: '@TempData["Mensaje"]',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+        });
     </script>
 }
 
 @* Agregar botón para redirigir a la vista de registro *@
 @Html.ActionLink("¿No tienes una cuenta? Regístrate aquí", "Create", "Usuarios", null, new { @class = "btn btn-link" })
+
+<script>
+    function validateForm(event) {
+        event.preventDefault(); // Evita que el formulario se envíe automáticamente
+
+        // Validar usuario y contraseña aquí
+        var username = document.getElementById("Username").value;
+        var password = document.getElementById("Password").value;
+
+        if (username === "" || password === "") {
+            Swal.fire({
+                title: 'Error',
+                text: 'Por favor ingrese un usuario y una contraseña',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        } else {
+            event.target.form.submit(); // Enviar el formulario si los campos no están vacíos
+        }
+    }
+</script>
