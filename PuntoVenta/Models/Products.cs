@@ -11,7 +11,7 @@ namespace PuntoVenta.Models
         public int idProCatSubCategoria { get; set; }// Clave foránea para SubCategorias
         public double decMaximo { get; set; }
         public double decMinimo { get; set; }
-        public int intStock { get; set; }
+        public double decStock { get; set; }
         public double curCosto { get; set; }
         public double curPrecio { get; set; }
       
