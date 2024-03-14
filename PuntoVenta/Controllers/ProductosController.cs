@@ -40,14 +40,14 @@ namespace PuntoVenta.Controllers
 
             foreach (var producto in proProductos)
             {
-                if (subcategorias.Any(s => s.IdSubCat == producto.idProCatSubCategoria && s.idProCatCategoria == producto.idProCatCategoria))
-                {
-                    var subcategoria = subcategorias.First(s => s.IdSubCat == producto.idProCatSubCategoria && s.idProCatCategoria == producto.idProCatCategoria);
+                var subcategoriasProducto = subcategorias.Where(s => s.IdSubCat == producto.idProCatSubCategoria && s.idProCatCategoria == producto.idProCatCategoria).ToList();
 
+                foreach (var subcategoria in subcategoriasProducto)
+                {
                     var productoConNombres = new ProductoConNombres
                     {
                         Producto = producto,
-                        CategoriaNombre = subcategoria.idProCatCategoria.ToString(),
+                        CategoriaNombre = producto.Categoria.strNombreCategoria,
                         SubCategoriaNombre = subcategoria.strNombreSubCategoria
                     };
                     productosConNombres.Add(productoConNombres);
