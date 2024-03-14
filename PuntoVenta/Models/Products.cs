@@ -9,11 +9,11 @@ namespace PuntoVenta.Models
         public string StrDescriptcion { get; set; }
         public int idProCatCategoria { get; set; } // Clave foránea para Categorias
         public int idProCatSubCategoria { get; set; }// Clave foránea para SubCategorias
-        public double decMaximo { get; set; }
-        public double decMinimo { get; set; }
-        public double decStock { get; set; }
-        public double curCosto { get; set; }
-        public double curPrecio { get; set; }
+        public decimal decMaximo { get; set; }
+        public decimal decMinimo { get; set; }
+        public decimal decStock { get; set; }
+        public decimal curCosto { get; set; }
+        public decimal curPrecio { get; set; }
       
         public string strUrlImage { get; set; }
 
