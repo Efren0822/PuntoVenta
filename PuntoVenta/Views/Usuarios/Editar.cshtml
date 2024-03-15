@@ -17,13 +17,25 @@
 
             <div class="form-group">
                 @Html.Label("Estado", "Estado", htmlAttributes: new { @class = "block text-gray-700 font-bold mb-2" })
-                @Html.DropDownListFor(model => model.IdUsuCatEstado, (IEnumerable<SelectListItem>)ViewBag.Estados, "Seleccione...", new { @class = "form-select", id = "Id" })
+                <select asp-for="IdUsuCatEstado" class="form-select" id="IdUsuCatEstado">
+                    <option value="">Seleccione...</option>
+                    @foreach (var estado in ViewBag.Estados)
+                    {
+                        <option value="@estado.Value">@estado.Text</option>
+                    }
+                </select>
                 @Html.ValidationMessageFor(model => model.IdUsuCatEstado, "", new { @class = "text-red-500" })
             </div>
 
             <div class="form-group">
                 @Html.Label("Tipo Usuario", "TipoUsuario", htmlAttributes: new { @class = "block text-gray-700 font-bold mb-2" })
-                @Html.DropDownListFor(model => model.IdUsuCatTipoUsuario, (IEnumerable<SelectListItem>)ViewBag.TiposUsuario, "Seleccione...", new { @class = "form-select", id = "Id" })
+                <select asp-for="IdUsuCatTipoUsuario" class="form-select" id="IdUsuCatTipoUsuario">
+                    <option value="">Seleccione...</option>
+                    @foreach (var tipoUsuario in ViewBag.TiposUsuario)
+                    {
+                        <option value="@tipoUsuario.Value">@tipoUsuario.Text</option>
+                    }
+                </select>
                 @Html.ValidationMessageFor(model => model.IdUsuCatTipoUsuario, "", new { @class = "text-red-500" })
             </div>
         </div>

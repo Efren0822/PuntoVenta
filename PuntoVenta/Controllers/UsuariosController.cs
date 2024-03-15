@@ -150,9 +150,6 @@ namespace PuntoVenta.Controllers
             return View();
         }
 
-
-
-        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Usuario usuario)
@@ -212,6 +209,76 @@ namespace PuntoVenta.Controllers
         }
 
 
+        public ActionResult CreateL()
+        {
+            ViewBag.Estado = _context.UsuCatEstado
+        .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.strNombreEstado })
+        .ToList();
+            ViewBag.TipoUsuario = _context.UsuCatTipoUsuario
+                        .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.strTipoUsuario })
+                        .ToList();
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateL(Usuario usuario)
+        {
+            string errorMessage = "";
+
+            if (ModelState.IsValid)
+            {
+                if (usuario.IdUsuCatEstado == 0 && usuario.IdUsuCatTipoUsuario == 0)
+                {
+                    ModelState.AddModelError("EstadoId", "Debe seleccionar un estado.");
+                    ModelState.AddModelError("TipoUsuario", "Debe seleccionar un tipo de usuario.");
+                    ViewBag.Estado = _context.UsuCatEstado
+                        .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.strNombreEstado })
+                        .ToList();
+                    ViewBag.TipoUsuario = _context.UsuCatTipoUsuario
+                                .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.strTipoUsuario })
+                                .ToList();
+                    return View(usuario);
+                }
+
+                usuario.strPassword = Encriptacion.Encriptar(usuario.strPassword);
+            }
+            else
+            {
+                errorMessage = "ModelState.IsValid fue falso. Los errores de validación son los siguientes:";
+                foreach (var value in ModelState.Values)
+                {
+                    foreach (var error in value.Errors)
+                    {
+                        errorMessage += $" {error.ErrorMessage}";
+                    }
+                }
+            }
+
+            try
+            {
+
+                _context.UsuUsuario.Add(usuario);
+                _context.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                errorMessage += $" Ocurrió un error al guardar el usuario en la base de datos: {ex.Message}.";
+            }
+
+            ModelState.AddModelError("", $"Ocurrió un error: {errorMessage} Por favor, inténtelo de nuevo más tarde.");
+
+            ViewBag.Estado = _context.UsuCatEstado
+                .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.strNombreEstado })
+                .ToList();
+            ViewBag.TipoUsuario = _context.UsuCatTipoUsuario
+                        .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.strTipoUsuario })
+                        .ToList();
+            return View(usuario);
+        }
+
+
 
         public IActionResult Detalles(int? id)
         {
@@ -246,6 +313,7 @@ namespace PuntoVenta.Controllers
                 return NotFound();
             }
 
+            // Obtener la lista de estados
             var estados = _context.UsuCatEstado
                 .Select(e => new SelectListItem
                 {
@@ -254,16 +322,8 @@ namespace PuntoVenta.Controllers
                 })
                 .ToList();
 
-            var tiposUsuario = _context.UsuCatTipoUsuario
-                .Select(t => new SelectListItem
-                {
-                    Value = t.Id.ToString(),
-                    Text = t.strTipoUsuario
-                })
-                .ToList();
-
+            // Pasar la lista de estados a la vista
             ViewBag.Estados = estados;
-            ViewBag.TiposUsuario = tiposUsuario;
 
             return View(usuario);
         }
@@ -289,13 +349,27 @@ namespace PuntoVenta.Controllers
                 {
                     ModelState.AddModelError("", "Ocurrió un error al guardar los cambios: " + ex.Message);
                     
+                    ViewBag.Estados = _context.UsuCatEstado
+                        .Select(e => new SelectListItem
+                        {
+                            Value = e.Id.ToString(),
+                            Text = e.strNombreEstado
+                        })
+                        .ToList();
                     return View(usuario);
                 }
             }
 
-             return View(usuario);
+            
+            ViewBag.Estados = _context.UsuCatEstado
+                .Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.strNombreEstado
+                })
+                .ToList();
+            return View(usuario);
         }
-
 
 
 
