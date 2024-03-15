@@ -5,6 +5,11 @@
 <p class="mb-2"><strong>Nombre:</strong> @Model.strNombre</p>
 <p class="mb-2"><strong>Estado:</strong> @Model.Estado.strNombreEstado</p>
 <p class="mb-2"><strong>Tipo de Usuario:</strong> @Model.TipoUsuario.strTipoUsuario</p>
-
+<div>
 <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary mr-2">Editar</a>
 @Html.ActionLink("Borrar", "Borrar", new { id = Model.Id }, new { @class = "btn btn-danger" })
+</div>
+<div>
+	@Html.ActionLink("Regresar", "Index", "Usuarios", null, new { @class = "btn btn-secondary" })
+</div>
+
