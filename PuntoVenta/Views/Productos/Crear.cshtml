@@ -1,0 +1,99 @@
+﻿@model PuntoVenta.Models.Products
+
+@{
+    ViewBag.Title = "Crear";
+}
+
+<head>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+</head>
+<h2>Registrar Producto</h2>
+<body>
+<form asp-action="Crear" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="StrNombrePro">Nombre del Producto</label>
+        <input asp-for="StrNombrePro" class="form-control" />
+        <span asp-validation-for="StrNombrePro" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StrDescriptcion">Descripción</label>
+        <input asp-for="StrDescriptcion" class="form-control" />
+        <span asp-validation-for="StrDescriptcion" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="idProCatCategoria">Categoría</label>
+        <select asp-for="idProCatCategoria" asp-items="ViewBag.Categorias" id="categoriaSelect" class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="idProCatSubCategoria">Subcategoría</label>
+        <select asp-for="idProCatSubCategoria" id="subcategoriaSelect" class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="decMaximo">Máximo</label>
+        <input asp-for="decMaximo" class="form-control" />
+        <span asp-validation-for="decMaximo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="decMinimo">Mínimo</label>
+        <input asp-for="decMinimo" class="form-control" />
+        <span asp-validation-for="decMinimo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="decStock">Stock</label>
+        <input asp-for="decStock" class="form-control" />
+        <span asp-validation-for="decStock" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="curCosto">Costo</label>
+        <input asp-for="curCosto" class="form-control" />
+        <span asp-validation-for="curCosto" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="curPrecio">Precio</label>
+        <input asp-for="curPrecio" class="form-control" />
+        <span asp-validation-for="curPrecio" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="strUrlImage">URL de la Imagen</label>
+        <input asp-for="strUrlImage" class="form-control" />
+        <span asp-validation-for="strUrlImage" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Registrar</button>
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var categoriaSelect = document.getElementById('categoriaSelect');
+        var subcategoriaSelect = document.getElementById('subcategoriaSelect');
+
+        categoriaSelect.addEventListener('change', function () {
+            var categoriaId = this.value;
+            subcategoriaSelect.innerHTML = ''; // Limpia las opciones existentes
+
+            fetch(`/Productos/GetSubcategoriasPorCategoria?categoriaId=${categoriaId}`)
+                .then(response => response.json())
+                .then(subcategorias => {
+                    subcategorias.forEach(function (subcat) {
+                        let option = new Option(subcat.text, subcat.value);
+                        subcategoriaSelect.add(option);
+                    });
+                    if (subcategorias.length === 0) {
+                        let option = new Option('Seleccione una subcategoría', '');
+                        subcategoriaSelect.add(option);
+                    }
+                })
+                .catch(error => console.error('Error al cargar subcategorías:', error));
+        });
+    });
+</script>
+</body>
+
