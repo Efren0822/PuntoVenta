@@ -23,12 +23,13 @@ namespace PuntoVenta.Models
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Usuario>().ToTable("UsuUsuario");
+
             modelBuilder.Entity<Products>().ToTable("ProProducto")
                 .HasKey(b => b.IdPro);
             modelBuilder.Entity<Products>()
         .HasOne(p => p.Categoria)
         .WithMany()
-        .HasForeignKey(p => p.idProCatCategoria); // Asegúrate de que la propiedad se llama 'IdCat' y no 'CategoriaIdCat'
+        .HasForeignKey(p => p.idProCatCategoria); 
 
             modelBuilder.Entity<Products>()
                 .HasOne(p => p.SubCategoria)
