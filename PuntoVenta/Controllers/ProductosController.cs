@@ -163,7 +163,7 @@ namespace PuntoVenta.Controllers
                 // Por ahora, asignaremos un SelectList vacío para evitar errores
                 ViewBag.Categorias = new SelectList(Enumerable.Empty<SelectListItem>());
             }
-            else
+            else 
             {
                 // Si hay categorías, crear el SelectList con ellas
                 ViewBag.Categorias = new SelectList(categorias, "IdCat", "strNombreCategoria");
