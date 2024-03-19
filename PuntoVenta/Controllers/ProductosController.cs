@@ -195,7 +195,7 @@ namespace PuntoVenta.Controllers
 
             // Recargar ViewBag en caso de un error para mantener el formulario
             ViewBag.Categorias = new SelectList(_context.Categorias, "IdCat", "strNombreCategoria", producto.idProCatCategoria);
-            ViewBag.SubCategorias = new SelectList(_context.SubCategorias, "IdSubCat", "strNombreSubCategoria", producto.idProCatSubCategoria);
+            ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>());
             return View(producto);
         }
 
