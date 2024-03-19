@@ -66,30 +66,7 @@ namespace PuntoVenta.Controllers
             public string SubCategoriaNombre { get; set; }
         }
 
-
-
-        public IActionResult Crear()
-        {
-            // Preparar las listas para categorías y subcategorías
-            ViewBag.Categorias = new SelectList(_context.Categorias, "Id", "Nombre");
-            ViewBag.SubCategorias = new SelectList(_context.SubCategorias, "Id", "Nombre");
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Crear(Products producto)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Productos.Add(producto);
-                _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewBag.Categorias = new SelectList(_context.Categorias, "Id", "Nombre", producto.idProCatCategoria);
-            ViewBag.SubCategorias = new SelectList(_context.SubCategorias, "Id", "Nombre", producto.idProCatSubCategoria);
-            return View(producto);
-        }
+        
 
         public IActionResult Editar(int? id)
         {
@@ -172,5 +149,68 @@ namespace PuntoVenta.Controllers
         {
             return _context.Productos.Any(e => e.IdPro == id);
         }
+
+
+        // Acción para mostrar la vista del formulario
+        [HttpGet]
+        public IActionResult Crear()
+        {
+            // Obtener las categorías de la base de datos y asegurarse de que no sean nulas
+            var categorias = _context.Categorias.ToList();
+            if (categorias == null || !categorias.Any())
+            {
+                // Manejar el caso cuando no hay categorías, tal vez redirigir o mostrar un mensaje
+                // Por ahora, asignaremos un SelectList vacío para evitar errores
+                ViewBag.Categorias = new SelectList(Enumerable.Empty<SelectListItem>());
+            }
+            else
+            {
+                // Si hay categorías, crear el SelectList con ellas
+                ViewBag.Categorias = new SelectList(categorias, "IdCat", "strNombreCategoria");
+                ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>()); // Inicializa vacío.
+
+
+            }
+
+            // Para las subcategorías, inicialmente tendremos una lista vacía porque dependen de la categoría seleccionada
+            ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>());
+
+            // Pasar una instancia nueva de Products para evitar referencias nulas
+            return View(new Products());
+        }
+
+
+
+        // Acción para procesar los datos del formulario
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Crear(Products producto)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(producto);
+                _context.SaveChanges();
+                return RedirectToAction("Productos"); // Asegúrate de redirigir a la vista o acción correcta.
+            }
+
+            // Recargar ViewBag en caso de un error para mantener el formulario
+            ViewBag.Categorias = new SelectList(_context.Categorias, "IdCat", "strNombreCategoria", producto.idProCatCategoria);
+            ViewBag.SubCategorias = new SelectList(_context.SubCategorias, "IdSubCat", "strNombreSubCategoria", producto.idProCatSubCategoria);
+            return View(producto);
+        }
+
+
+        // Acción para obtener subcategorías en base a la categoría seleccionada, usando AJAX
+        [HttpGet]
+        public IActionResult GetSubcategoriasPorCategoria(int categoriaId)
+        {
+            var subcategorias = _context.SubCategorias
+                                        .Where(sc => sc.idProCatCategoria == categoriaId)
+                                        .Select(sc => new { value = sc.IdSubCat, text = sc.strNombreSubCategoria })
+                                        .ToList();
+
+            return Json(subcategorias);
+        }
+
     }
 }
