@@ -322,8 +322,18 @@ namespace PuntoVenta.Controllers
                 })
                 .ToList();
 
-            // Pasar la lista de estados a la vista
+            // Obtener la lista de tipos de usuario
+            var tiposUsuario = _context.UsuCatTipoUsuario
+                .Select(t => new SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = t.strTipoUsuario
+                })
+                .ToList();
+
+            // Pasar las listas a la vista
             ViewBag.Estados = estados;
+            ViewBag.TiposUsuario = tiposUsuario;
 
             return View(usuario);
         }
@@ -343,12 +353,12 @@ namespace PuntoVenta.Controllers
                 {
                     _context.Update(usuario);
                     _context.SaveChanges();
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", "Ocurrió un error al guardar los cambios: " + ex.Message);
-                    
+                    Console.WriteLine("error: " + ex.Message);
                     ViewBag.Estados = _context.UsuCatEstado
                         .Select(e => new SelectListItem
                         {
@@ -356,11 +366,20 @@ namespace PuntoVenta.Controllers
                             Text = e.strNombreEstado
                         })
                         .ToList();
+
+                    ViewBag.TiposUsuario = _context.UsuCatTipoUsuario
+                        .Select(t => new SelectListItem
+                        {
+                            Value = t.Id.ToString(),
+                            Text = t.strTipoUsuario
+                        })
+                        .ToList();
+
                     return View(usuario);
                 }
             }
 
-            
+            // Si la validación falla, obtener nuevamente las listas de estados y tipos de usuario y pasarlas a la vista
             ViewBag.Estados = _context.UsuCatEstado
                 .Select(e => new SelectListItem
                 {
@@ -368,8 +387,19 @@ namespace PuntoVenta.Controllers
                     Text = e.strNombreEstado
                 })
                 .ToList();
+
+            ViewBag.TiposUsuario = _context.UsuCatTipoUsuario
+                .Select(t => new SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = t.strTipoUsuario
+                })
+                .ToList();
+
             return View(usuario);
         }
+
+
 
 
 
