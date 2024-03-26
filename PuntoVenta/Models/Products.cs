@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PuntoVenta.Models
 {
     public class Products
     {
+        [Key]
         public int IdPro { get; set; }
 
         [Required(ErrorMessage = "este campo es requerido.")]
@@ -11,10 +13,16 @@ namespace PuntoVenta.Models
         public string StrNombrePro { get; set; }
         [Required(ErrorMessage = "este campo es requerido.")]
         public string StrDescriptcion { get; set; }
-        [Required(ErrorMessage = "este campo es requerido.")]
+
+        [Required(ErrorMessage = "Este campo es requerido.")]
+        [RegularExpression(@"^(?![01]\d).*\d+$", ErrorMessage = "El valor no puede ser negativo ni empezar con '0'.")]
         public int idProCatCategoria { get; set; } // Clave foránea para Categorias
-        [Required(ErrorMessage = "este campo es requerido.")]
-        public int idProCatSubCategoria { get; set; }// Clave foránea para SubCategorias
+
+        [Required(ErrorMessage = "Este campo es requerido.")]
+        [RegularExpression(@"^(?![01]\d).*\d+$", ErrorMessage = "El valor no puede ser negativo ni empezar con '0'.")]
+        public int idProCatSubCategoria { get; set; } // Clave foránea para SubCategorias
+
+
         [Required(ErrorMessage = "este campo es requerido.")]
    
         [Range(0, int.MaxValue, ErrorMessage = "El valor debe ser mayor o igual a 0.")]
@@ -36,11 +44,13 @@ namespace PuntoVenta.Models
         [Range(0, double.MaxValue, ErrorMessage = "El valor debe ser mayor o igual a 0.")]
         public decimal curPrecio { get; set; }
 
+        [Required(ErrorMessage = "Este campo es requerido.")]
+     
         public string strUrlImage { get; set; }
 
 
-        public virtual Categorias Categoria { get; set; } // Propiedad de navegación
-        public virtual SubCategorias SubCategoria { get; set; } // Propiedad de navegación
+
+
 
     }
 }

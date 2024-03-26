@@ -25,12 +25,12 @@ options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
 }));
 
 
-
 /*
+
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString,
     ServerVersion.Parse("8.0.28")));
-*/
 
+*/
 
 
 var app = builder.Build();

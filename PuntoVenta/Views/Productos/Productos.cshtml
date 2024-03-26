@@ -14,6 +14,11 @@
         <input type="text" id="name-search-input" placeholder="Buscar por nombre" oninput="searchProducts()" />
         <input type="text" id="category-search-input" placeholder="Buscar por categoría" oninput="searchProducts()" />
         <input type="text" id="subcategory-search-input" placeholder="Buscar por subcategoría" oninput="searchProducts()" />
+        <div>
+            <label class="ml-4 text-gray-600">Registrar Producto</label>
+            <a href="@Url.Action("Crear", "Productos")" class="btn btn-success">Agregar Producto</a>
+
+        </div>
     </div>
 
     <div class="table-responsive">
@@ -40,20 +45,14 @@
                         <td>@producto.StrDescriptcion</td>
                         <td>
                             @{
-                                var categoria = producto.Categoria;
-                                if (categoria != null)
-                                {
-                                    @categoria.strNombreCategoria
-                                }
+                                var categoriaNombre = ViewBag.CategoriaNombres[producto.idProCatCategoria];
+                                @categoriaNombre
                             }
                         </td>
                         <td>
                             @{
-                                var subcategoria = producto.SubCategoria;
-                                if (subcategoria != null)
-                                {
-                                    @subcategoria.strNombreSubCategoria
-                                }
+                                var subcategoriaNombre = ViewBag.SubcategoriaNombres[producto.idProCatSubCategoria];
+                                @subcategoriaNombre
                             }
                         </td>
                         <td>@producto.decMaximo</td>
@@ -61,6 +60,7 @@
                         <td>@producto.decStock</td>
                         <td>@producto.curCosto</td>
                         <td>@producto.curPrecio</td>
+                        <td>@producto.strUrlImage</td>
                         <td>
                             <!-- Acciones -->
                             @Html.ActionLink("Detalles", "Detalles", new { id = producto.IdPro }, new { @class = "btn btn-info" })
@@ -99,4 +99,3 @@
         }
     }
 </script>
-

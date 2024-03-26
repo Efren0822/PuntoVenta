@@ -14,6 +14,7 @@ namespace PuntoVenta.Models
         public DbSet<User> Registros { get; set; }
 
         public DbSet<Products> Productos { get; set; }
+
         public DbSet<Categorias> Categorias { get; set; }
         public DbSet<SubCategorias> SubCategorias { get; set; }
 
@@ -24,17 +25,22 @@ namespace PuntoVenta.Models
 
             modelBuilder.Entity<Usuario>().ToTable("UsuUsuario");
 
+         
+            //products se utiliza para la visualizacion de los productos
             modelBuilder.Entity<Products>().ToTable("ProProducto")
-                .HasKey(b => b.IdPro);
-            modelBuilder.Entity<Products>()
-        .HasOne(p => p.Categoria)
-        .WithMany()
-        .HasForeignKey(p => p.idProCatCategoria); 
+                   
+                              .HasKey(p => p.IdPro);
 
-            modelBuilder.Entity<Products>()
-                .HasOne(p => p.SubCategoria)
-                .WithMany()
-                .HasForeignKey(p => p.idProCatSubCategoria);
+          
+
+       
+            // Configuración de la precisión para propiedades decimales
+            modelBuilder.Entity<Products>().Property(p => p.decMaximo).HasPrecision(18, 2);
+            modelBuilder.Entity<Products>().Property(p => p.decMinimo).HasPrecision(18, 2);
+            modelBuilder.Entity<Products>().Property(p => p.decStock).HasPrecision(18, 2);
+            modelBuilder.Entity<Products>().Property(p => p.curCosto).HasPrecision(18, 2);
+            modelBuilder.Entity<Products>().Property(p => p.curPrecio).HasPrecision(18, 2);
+
 
             modelBuilder.Entity<Categorias>().ToTable("ProCatCategoria")
                 .HasKey(c => c.IdCat);
