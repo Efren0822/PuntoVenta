@@ -5,49 +5,55 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Linq;
 using PuntoVenta.Helpers;
+using Microsoft.Extensions.Logging; // Asegúrate de incluir esta directiva para ILogger
 
 namespace PuntoVenta.Controllers
 {
     public class ProductosController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<ProductosController> _logger;
 
-        public ProductosController(ApplicationDbContext context)
+        // Constructor combinado con inyección de dependencias para ApplicationDbContext y ILogger
+        public ProductosController(ApplicationDbContext context, ILogger<ProductosController> logger)
         {
             _context = context;
+            _logger = logger;
         }
-      
         public IActionResult Productos()
         {
-            var proProductos = _context.Productos
-                .Include(p => p.Categoria) 
-                .Include(p => p.SubCategoria) 
-                .ToList();
+            var proProductos = _context.Productos.ToList();
+
+            // Consultas adicionales para obtener los nombres de categorías y subcategorías
+            var categoriaNombres = _context.Categorias.ToDictionary(c => c.IdCat, c => c.strNombreCategoria);
+            var subcategoriaNombres = _context.SubCategorias.ToDictionary(s => s.IdSubCat, s => s.strNombreSubCategoria);
+
+            ViewBag.CategoriaNombres = categoriaNombres;
+            ViewBag.SubcategoriaNombres = subcategoriaNombres;
 
             return View(proProductos);
         }
 
+
+
+
         public IActionResult Categorias()
         {
-            var proProductos = _context.Productos
-                .Include(p => p.Categoria)
-                .Include(p => p.SubCategoria)
-                .ToList();
-
-            var subcategorias = _context.SubCategorias.ToList();
+            var productos = _context.Productos.ToList();
 
             var productosConNombres = new List<ProductoConNombres>();
 
-            foreach (var producto in proProductos)
+            foreach (var producto in productos)
             {
-                var subcategoriasProducto = subcategorias.Where(s => s.IdSubCat == producto.idProCatSubCategoria && s.idProCatCategoria == producto.idProCatCategoria).ToList();
+                var categoria = _context.Categorias.FirstOrDefault(c => c.IdCat == producto.idProCatCategoria);
+                var subcategoria = _context.SubCategorias.FirstOrDefault(s => s.IdSubCat == producto.idProCatSubCategoria);
 
-                foreach (var subcategoria in subcategoriasProducto)
+                if (categoria != null && subcategoria != null)
                 {
                     var productoConNombres = new ProductoConNombres
                     {
                         Producto = producto,
-                        CategoriaNombre = producto.Categoria.strNombreCategoria,
+                        CategoriaNombre = categoria.strNombreCategoria,
                         SubCategoriaNombre = subcategoria.strNombreSubCategoria
                     };
                     productosConNombres.Add(productoConNombres);
@@ -123,8 +129,6 @@ namespace PuntoVenta.Controllers
             }
 
             var producto = _context.Productos
-                .Include(c => c.Categoria) // Asegúrate de ajustar esto según la estructura de tu modelo
-                .Include(a => a.SubCategoria) // Asegúrate de ajustar esto según la estructura de tu modelo
                 .FirstOrDefault(m => m.IdPro == id);
 
             if (producto == null)
@@ -155,61 +159,62 @@ namespace PuntoVenta.Controllers
         [HttpGet]
         public IActionResult Crear()
         {
-            // Obtener las categorías de la base de datos y asegurarse de que no sean nulas
-            var categorias = _context.Categorias.ToList();
-            if (categorias == null || !categorias.Any())
-            {
-                // Manejar el caso cuando no hay categorías, tal vez redirigir o mostrar un mensaje
-                // Por ahora, asignaremos un SelectList vacío para evitar errores
-                ViewBag.Categorias = new SelectList(Enumerable.Empty<SelectListItem>());
-            }
-            else 
-            {
-                // Si hay categorías, crear el SelectList con ellas
-                ViewBag.Categorias = new SelectList(categorias, "IdCat", "strNombreCategoria");
-                ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>()); // Inicializa vacío.
-
-
-            }
-
-            // Para las subcategorías, inicialmente tendremos una lista vacía porque dependen de la categoría seleccionada
-            ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>());
-
-            // Pasar una instancia nueva de Products para evitar referencias nulas
+            ViewBag.Categorias = new SelectList(_context.Categorias, "IdCat", "strNombreCategoria");
+            ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>(), "IdSubCat", "strNombreSubCategoria");
             return View(new Products());
         }
 
 
 
-        // Acción para procesar los datos del formulario
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Products producto)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(producto);
-                _context.SaveChanges();
-                return RedirectToAction("Productos"); // Asegúrate de redirigir a la vista o acción correcta.
+                try
+                {
+                 
+                    _context.Add(producto);
+                    _context.SaveChanges();
+                    return RedirectToAction("Productos");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ha ocurrido un error al intentar crear un producto: {ErrorMessage}", ex.Message);
+                }
+            }
+            else
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                _logger.LogError("Errores de validación al crear producto: {ValidationErrors}", errors);
             }
 
-            // Recargar ViewBag en caso de un error para mantener el formulario
             ViewBag.Categorias = new SelectList(_context.Categorias, "IdCat", "strNombreCategoria", producto.idProCatCategoria);
-            ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>());
+            ViewBag.SubCategorias = new SelectList(_context.SubCategorias.Where(sc => sc.idProCatCategoria == producto.idProCatCategoria), "IdSubCat", "strNombreSubCategoria", producto.idProCatSubCategoria);
+
             return View(producto);
         }
 
 
-        // Acción para obtener subcategorías en base a la categoría seleccionada, usando AJAX
+
         [HttpGet]
         public IActionResult GetSubcategoriasPorCategoria(int categoriaId)
         {
-            var subcategorias = _context.SubCategorias
-                                        .Where(sc => sc.idProCatCategoria == categoriaId)
-                                        .Select(sc => new { value = sc.IdSubCat, text = sc.strNombreSubCategoria })
-                                        .ToList();
+            try
+            {
+                var subcategorias = _context.SubCategorias
+                    .Where(sc => sc.idProCatCategoria == categoriaId)
+                    .Select(sc => new { value = sc.IdSubCat, text = sc.strNombreSubCategoria })
+                    .ToList();
 
-            return Json(subcategorias);
+                return Json(subcategorias);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener subcategorías por categoría: {ErrorMessage}", ex.Message);
+                throw; // Opcional: Puedes manejar la excepción de otra manera si lo prefieres
+            }
         }
 
     }
