@@ -34,6 +34,8 @@
                     <th>Stock</th>
                     <th>Costo</th>
                     <th>Precio</th>
+                    <th>Imagen Url</th>
+                    <th>imagen</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -62,10 +64,22 @@
                         <td>@producto.curPrecio</td>
                         <td>@producto.strUrlImage</td>
                         <td>
+                            @if (producto.blodImage != null)
+                            {
+                                string imageBase64 = Convert.ToBase64String(producto.blodImage);
+                                string imageSrc = String.Format("data:image/gif;base64,{0}", imageBase64);
+                                <img src="@imageSrc" style="width:100px; height:100px;" />
+                            }
+                            else
+                            {
+                                @:No Image
+                            }
+                        </td>
+                        <td>
                             <!-- Acciones -->
                             @Html.ActionLink("Detalles", "Detalles", new { id = producto.IdPro }, new { @class = "btn btn-info" })
                             @Html.ActionLink("Editar", "Editar", new { id = producto.IdPro }, new { @class = "btn btn-primary" })
-                            @Html.ActionLink("Eliminar", "Eliminar", new { id = producto.IdPro }, new { @class = "btn btn-danger", onclick = "return confirm('¿Está seguro de querer eliminar este producto?');" })
+                            <button class="btn btn-danger" onclick="eliminarProducto(@producto.IdPro)">Eliminar</button>
                         </td>
                     </tr>
                 }
@@ -96,6 +110,24 @@
             var subcategoryMatch = subcategoryColumn.includes(subcategoryInput) || subcategoryInput === "";
 
             row.style.display = (nameMatch && categoryMatch && subcategoryMatch) ? "" : "none";
+        }
+    }
+
+    function eliminarProducto(id) {
+        if (confirm("¿Estás seguro de querer eliminar este producto?")) {
+            fetch("/Productos/Eliminar/" + id, {
+                method: "POST"
+            }).then(response => {
+                if (response.ok) {
+                    // Recargar la página después de eliminar el producto
+                    window.location.reload();
+                } else {
+                    alert("Error al eliminar el producto.");
+                }
+            }).catch(error => {
+                console.error("Error:", error);
+                alert("Error al eliminar el producto.");
+            });
         }
     }
 </script>

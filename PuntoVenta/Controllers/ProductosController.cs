@@ -87,71 +87,28 @@ namespace PuntoVenta.Controllers
             return View(producto);
         }
 
+       
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Editar(int id, Products producto)
+        public IActionResult Eliminar(int id)
         {
-            if (id != producto.IdPro)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(producto);
-                    _context.SaveChanges();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductoExists(producto.IdPro))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewBag.Categorias = new SelectList(_context.Categorias, "Id", "Nombre", producto.idProCatCategoria);
-            ViewBag.SubCategorias = new SelectList(_context.SubCategorias, "Id", "Nombre", producto.idProCatSubCategoria);
-            return View(producto);
-        }
-
-        public IActionResult Eliminar(int? id)
-        {
-            if (id == null || !_context.Productos.Any(p => p.IdPro == id))
-            {
-                return NotFound();
-            }
-
-            var producto = _context.Productos
-                .FirstOrDefault(m => m.IdPro == id);
-
+            var producto = _context.Productos.Find(id);
             if (producto == null)
             {
                 return NotFound();
             }
 
-            return View(producto);
-        }
-
-        [HttpPost, ActionName("Eliminar")]
-        [ValidateAntiForgeryToken]
-        public IActionResult ConfirmarEliminar(int id)
-        {
-            var producto = _context.Productos.Find(id);
-            _context.Productos.Remove(producto);
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductoExists(int id)
-        {
-            return _context.Productos.Any(e => e.IdPro == id);
+            try
+            {
+                _context.Productos.Remove(producto);
+                _context.SaveChanges();
+                return RedirectToAction("Productos"); // Redirige a la acción "Productos" para actualizar la lista
+            }
+            catch (Exception ex)
+            {
+                // Manejar errores aquí
+                return RedirectToAction("Productos"); // Redirige a la acción "Productos" si hay un error
+            }
         }
 
 
@@ -168,10 +125,25 @@ namespace PuntoVenta.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Crear(Products producto)
+        public async Task<IActionResult> Crear(Products producto, IFormFile blodImage)
         {
             if (ModelState.IsValid)
             {
+
+                if (blodImage != null && blodImage.Length > 0)
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        await blodImage.CopyToAsync(stream);
+                        producto.blodImage = stream.ToArray(); // Asegúrate de que esta propiedad se llame correctamente
+                    }
+                }
+                else
+                {
+                    producto.blodImage = null; // Esto está bien sxi tu campo acepta nulos en la base de datos
+                }
+
+
                 try
                 {
                  

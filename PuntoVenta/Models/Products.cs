@@ -48,6 +48,7 @@ namespace PuntoVenta.Models
      
         public string strUrlImage { get; set; }
 
+        public Byte[]? blodImage { get; set; }
 
 
 
