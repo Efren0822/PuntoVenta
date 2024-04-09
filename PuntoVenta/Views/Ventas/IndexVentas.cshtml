@@ -1,0 +1,81 @@
+@model List<Venta>
+
+    <div class="container">
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PuntoVenta</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Productos">Productos</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+
+        <h2>Ventas</h2>
+
+
+        <div class="mb-3">
+            @using (Html.BeginForm("BuscarPorUsuario", "Venta", FormMethod.Post))
+        {
+            <div class="input-group">
+                @Html.TextBox("usuario", null, new { @class = "form-control", placeholder = "Buscar por usuario" })
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        }
+        </div>
+
+
+        <div class="mb-3">
+            <a href="@Url.Action("Ventas", "Ventas")" class="btn btn-success">Crear Venta</a>
+        </div>
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Productos</th>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var venta in Model)
+            {
+                <tr>
+                    <td>@venta.folio</td>
+                    <td>
+                        @foreach (var producto in venta.Productos)
+                        {
+                        @producto.strNombrePro;
+                        @producto.cantidad;
+                        @producto.precio;
+                        }
+                    </td>
+                    <td>@venta.dtFecha.ToString("dd/MM/yyyy")</td>
+                    <td>@venta.usuario</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - PuntoVenta -
+        </div>
+    </footer>
