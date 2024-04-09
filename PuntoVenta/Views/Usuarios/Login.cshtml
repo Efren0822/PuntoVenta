@@ -7,7 +7,7 @@
 
 <h2 class="text-2xl font-bold mb-4">Iniciar sesión</h2>
 
-@using (Html.BeginForm("Login", "Usuarios", FormMethod.Post, new { @class = "mt-4" }))
+@using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @class = "mt-4" }))
 {
     @Html.AntiForgeryToken()
 
