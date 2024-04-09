@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PuntoVenta.Models.Productos;
+using PuntoVenta.Models.Ventas;
 
 namespace PuntoVenta.Models
 {
@@ -17,6 +19,7 @@ namespace PuntoVenta.Models
 
         public DbSet<Categorias> Categorias { get; set; }
         public DbSet<SubCategorias> SubCategorias { get; set; }
+       // public DbSet<VenVentaPoducto> venVentaProductos { get; set; }  
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,6 +33,8 @@ namespace PuntoVenta.Models
             modelBuilder.Entity<Products>().ToTable("ProProducto")
                    
                               .HasKey(p => p.IdPro);
+
+
 
           
 

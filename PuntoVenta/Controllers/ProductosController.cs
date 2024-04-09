@@ -3,9 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PuntoVenta.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
-using System.Linq;
-using PuntoVenta.Helpers;
-using Microsoft.Extensions.Logging; // Asegúrate de incluir esta directiva para ILogger
+using PuntoVenta.Models.Productos;
 
 namespace PuntoVenta.Controllers
 {
@@ -188,6 +186,67 @@ namespace PuntoVenta.Controllers
                 throw; // Opcional: Puedes manejar la excepción de otra manera si lo prefieres
             }
         }
+
+        [HttpGet]
+        public IActionResult Ventas()
+        {
+            // Carga las categorías para el dropdown
+            ViewBag.Categorias = new SelectList(_context.Categorias, "IdCat", "strNombreCategoria");
+
+            // Inicializa la lista de subcategorías y productos como vacía
+            ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>());
+            ViewBag.Productos = new SelectList(Enumerable.Empty<SelectListItem>());
+
+            return View("~/Views/Ventas/Ventas.cshtml");
+        }
+
+        public JsonResult GetSubCategorias(int idCategoria)
+        {
+            var subcategorias = _context.SubCategorias.Where(sc => sc.idProCatCategoria == idCategoria)
+                .Select(sc => new { value = sc.IdSubCat, text = sc.strNombreSubCategoria })
+                .ToList();
+            return Json(subcategorias);
+        }
+
+        public JsonResult GetProductos(int idSubCategoria)
+        {
+            var productos = _context.Productos.Where(p => p.idProCatSubCategoria == idSubCategoria)
+                .Select(p => new { value = p.IdPro, text = p.StrNombrePro })
+                .ToList();
+            return Json(productos);
+        }
+
+        [HttpGet]
+        public IActionResult ObtenerStockYPrecio(int productoId)
+        {
+            try
+            {
+                var producto = _context.Productos.FirstOrDefault(p => p.IdPro == productoId);
+                if (producto != null)
+                {
+                    var data = new
+                    {
+                        stock = producto.decStock,
+                        precio = producto.curPrecio
+                    };
+                    return Json(data);
+                }
+                else
+                {
+                    return Json(new { error = "Producto no encontrado" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener stock y precio del producto: {ErrorMessage}", ex.Message);
+                return Json(new { error = "Error al obtener stock y precio del producto" });
+            }
+        }
+
+
+
+
+
 
     }
 }

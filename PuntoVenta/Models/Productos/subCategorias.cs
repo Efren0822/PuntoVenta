@@ -1,4 +1,4 @@
-﻿namespace PuntoVenta.Models
+﻿namespace PuntoVenta.Models.Productos
 {
     public class SubCategorias
     {

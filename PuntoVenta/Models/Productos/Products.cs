@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PuntoVenta.Models
+namespace PuntoVenta.Models.Productos
 {
     public class Products
     {
@@ -24,7 +23,7 @@ namespace PuntoVenta.Models
 
 
         [Required(ErrorMessage = "este campo es requerido.")]
-   
+
         [Range(0, int.MaxValue, ErrorMessage = "El valor debe ser mayor o igual a 0.")]
         public decimal decMaximo { get; set; }
 
@@ -45,10 +44,10 @@ namespace PuntoVenta.Models
         public decimal curPrecio { get; set; }
 
         [Required(ErrorMessage = "Este campo es requerido.")]
-     
+
         public string strUrlImage { get; set; }
 
-        public Byte[]? blodImage { get; set; }
+        public byte[]? blodImage { get; set; }
 
 
 

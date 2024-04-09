@@ -1,0 +1,213 @@
+﻿@model PuntoVenta.Models.Productos.Products
+
+@{
+    ViewData["Title"] = "Crear Venta";
+}
+
+<h2>Crear Venta</h2>
+
+<div class="form-group">
+    <label>Categoría</label>
+    @Html.DropDownListFor(model => model.idProCatCategoria, (SelectList)ViewBag.Categorias, "Seleccione una categoría", new { @class = "form-control", @id = "categoriaSelect" })
+</div>
+
+<div class="form-group">
+    <label>Subcategoría</label>
+    @Html.DropDownListFor(model => model.idProCatSubCategoria, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleccione una subcategoría", new { @class = "form-control", @id = "subcategoriaSelect" })
+</div>
+
+<div class="form-group">
+    <label>Producto</label>
+    @Html.DropDownListFor(model => model.IdPro, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleccione un producto", new { @class = "form-control", @id = "productoSelect" })
+</div>
+
+<div class="form-group">
+    <label>Stock</label>
+    <input type="text" id="stock" class="form-control" readonly />
+</div>
+
+<div class="form-group">
+    <label>Precio Unidad</label>
+    <input type="text" id="precio" class="form-control" readonly />
+</div>
+
+<div class="form-group">
+    <label>Cantidad</label>
+    <input type="number" id="cantidad" class="form-control" min="1" value="1" />
+</div>
+
+<div class="form-group">
+    <label>Total</label>
+    <input type="text" id="subtotal" class="form-control" readonly />
+</div>
+
+<button type="button" id="agregarBtn" class="btn btn-primary">Agregar</button>
+
+<!-- Tabla del Carrito de Compras -->
+<table id="carrito" class="table">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Los productos agregados al carrito aparecerán aquí -->
+    </tbody>
+</table>
+
+<div id="totalVenta">
+    <strong>Total Venta: </strong> <span id="totalVentaAmount">$0.00</span>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            function actualizarTotalVenta() {
+                var totalVenta = 0;
+
+                // Iterar sobre las filas del carrito y sumar los subtotales
+                $('#carrito tbody tr').each(function () {
+                    var subtotal = parseFloat($(this).find('.subtotal').text());
+                    totalVenta += subtotal;
+                });
+
+                // Actualizar el elemento de visualización del total de venta
+                $('#totalVentaAmount').text('$' + totalVenta.toFixed(2));
+            }
+
+            // Lógica de selección de categoría
+            $('#categoriaSelect').change(function () {
+                var categoriaId = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetSubcategoriasPorCategoria", "Productos")',
+                    type: 'GET',
+                    data: { categoriaId: categoriaId },
+                    success: function (data) {
+                        $('#subcategoriaSelect').empty(); // Vacía el dropdown de subcategorías
+                        $('#subcategoriaSelect').append('<option value="">Seleccione una subcategoría</option>'); // Agrega la opción predeterminada
+                        $.each(data, function (index, subcategoria) {
+                            $('#subcategoriaSelect').append($('<option>', {
+                                value: subcategoria.value,
+                                text: subcategoria.text
+                            }));
+                        });
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            // Lógica de selección de subcategoría
+            $('#subcategoriaSelect').change(function () {
+                var subcategoriaId = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetProductos", "Productos")',
+                    type: 'GET',
+                    data: { idSubCategoria: subcategoriaId },
+                    success: function (data) {
+                        $('#productoSelect').empty();
+                        $('#productoSelect').append('<option value="">SeleccioneUn Producto</option>'); // Agrega la opción predeterminada
+
+                        $.each(data, function (index, producto) {
+                            $('#productoSelect').append($('<option>', {
+                                value: producto.value,
+                                text: producto.text
+                            }));
+                        });
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            // Lógica de selección de producto
+            $('#productoSelect').change(function () {
+                var productoId = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("ObtenerStockYPrecio", "Productos")',
+                    type: 'GET',
+                    data: { productoId: productoId },
+                    success: function (data) {
+                        $('#stock').val(data.stock);
+                        $('#precio').val(data.precio);
+                        calcularTotal();
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            // Cálculo de total al cambiar la cantidad
+            $('#cantidad').change(function () {
+                var precio = $('#precio').val();
+                var cantidad = $(this).val();
+                $('#total').val((precio * cantidad).toFixed(2));
+            });
+
+            // Lógica para agregar producto al carrito
+            $('#agregarBtn').click(function () {
+                // Implementar agregado de producto al carrito
+            });
+
+            function calcularTotal() {
+                var precio = parseFloat($('#precio').val());
+                var cantidad = parseInt($('#cantidad').val());
+                var total = isNaN(precio) || isNaN(cantidad) ? 0 : precio * cantidad;
+                $('#subtotal').val(total.toFixed(2));
+            }
+
+            $('#agregarBtn').click(function () {
+                var producto = $('#productoSelect option:selected').text();
+                var cantidad = $('#cantidad').val();
+                var precio = $('#precio').val();
+                var subtotal = $('#subtotal').val();
+
+                // Validar si los campos están vacíos
+                if (producto === "" || cantidad === "" || precio === "" || subtotal === "") {
+                    alert("Por favor, complete todos los campos antes de agregar el producto al carrito.");
+                    return; // Salir de la función si algún campo está vacío
+                }
+
+                // Agregar los datos a la tabla
+                $('#carrito tbody').append(
+                    '<tr>' +
+                    '<td>' + producto + '</td>' +
+                    '<td>' + cantidad + '</td>' +
+                    '<td>' + precio + '</td>' +
+                    '<td class="subtotal">' + subtotal + '</td>' +
+                    '<td><button class="btn btn-danger eliminarBtn">Eliminar</button></td>' +
+                    '</tr>'
+                );
+
+                // Actualizar el total de la venta
+                actualizarTotalVenta();
+
+                // Limpiar los campos después de agregarlos
+                $('#categoriaSelect').val('');
+                $('#subcategoriaSelect').val('');
+                $('#productoSelect').val('');
+                $('#cantidad').val(1);
+                $('#stock').val('');
+                $('#precio').val('');
+                $('#subtotal').val('');
+            });
+
+             
+
+            // Lógica para eliminar producto del carrito
+            $(document).on('click', '.eliminarBtn', function () {
+                $(this).closest('tr').remove();
+                actualizarTotalVenta()
+            });
+        
+        });
+    </script>
+}

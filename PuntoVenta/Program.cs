@@ -14,6 +14,7 @@ var connectionString = builder.Configuration.GetConnectionString("SqlServerConne
 
 
 
+
 builder.Services.AddControllersWithViews();
 
 
@@ -24,12 +25,9 @@ options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
     sqlOptions.EnableRetryOnFailure();
 }));
 
-
 /*
-
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString,
     ServerVersion.Parse("8.0.28")));
-
 */
 
 
