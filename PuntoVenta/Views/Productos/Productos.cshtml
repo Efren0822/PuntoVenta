@@ -77,8 +77,6 @@
                         </td>
                         <td>
                             <!-- Acciones -->
-                            @Html.ActionLink("Detalles", "Detalles", new { id = producto.IdPro }, new { @class = "btn btn-info" })
-                            @Html.ActionLink("Editar", "Editar", new { id = producto.IdPro }, new { @class = "btn btn-primary" })
                             <button class="btn btn-danger" onclick="eliminarProducto(@producto.IdPro)">Eliminar</button>
                         </td>
                     </tr>
@@ -86,7 +84,7 @@
             </tbody>
         </table>
         <div>
-            @Html.ActionLink("Regresar", "Index", "Usuarios", null, new { @class = "btn btn-secondary" })
+            @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
         </div>
     </div>
 </body>
