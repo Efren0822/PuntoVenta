@@ -7,23 +7,23 @@
 
 <h2 class="text-2xl font-bold mb-4">Iniciar sesión</h2>
 
-@using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @class = "mt-4" }))
+@using (Html.BeginForm("Login", "Usuarios", FormMethod.Post, new { @class = "mt-4", id = "loginForm" }))
 {
     @Html.AntiForgeryToken()
 
     <div class="mb-4">
         @Html.LabelFor(m => m.Username, new { @class = "block text-gray-700 font-bold mb-2" })
-        @Html.TextBoxFor(m => m.Username, new { @class = "form-input w-full" })
+        @Html.TextBoxFor(m => m.Username, new { @class = "form-input w-full", id = "Username" })
         @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-red-500" })
     </div>
 
     <div class="mb-4">
         @Html.LabelFor(m => m.Password, new { @class = "block text-gray-700 font-bold mb-2" })
-        @Html.PasswordFor(m => m.Password, new { @class = "form-input w-full" })
+        @Html.PasswordFor(m => m.Password, new { @class = "form-input w-full", id = "Password" })
         @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-red-500" })
     </div>
 
-    <button type="submit" class="btn btn-primary" onclick="validateForm(event)">Iniciar sesión</button>
+    <button type="button" class="btn btn-primary" onclick="validateForm()">Iniciar sesión</button>
 }
 
 @if (TempData["Mensaje"] != null)
@@ -42,14 +42,11 @@
 @Html.ActionLink("¿No tienes una cuenta? Regístrate aquí", "CreateL", "Usuarios", null, new { @class = "btn btn-link" })
 
 <script>
-    function validateForm(event) {
-        event.preventDefault(); // Evita que el formulario se envíe automáticamente
-
-        // Validar usuario y contraseña aquí
+    function validateForm() {
         var username = document.getElementById("Username").value;
         var password = document.getElementById("Password").value;
 
-        if (username === "" || password === "") {
+        if (username.trim() === "" || password.trim() === "") {
             Swal.fire({
                 title: 'Error',
                 text: 'Por favor ingrese un usuario y una contraseña',
@@ -57,7 +54,7 @@
                 confirmButtonText: 'Aceptar'
             });
         } else {
-            event.target.form.submit(); // Enviar el formulario si los campos no están vacíos
+            document.getElementById("loginForm").submit();
         }
     }
 </script>
