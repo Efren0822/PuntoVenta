@@ -46,3 +46,26 @@
         </div>
     </div>
 }
+<script>
+    function validateForm() {
+        var username = document.getElementById("Username").value;
+        var password = document.getElementById("Password").value;
+
+        if (username.trim() === "" || password.trim() === "") {
+            Swal.fire({
+                title: 'Error',
+                text: 'Por favor ingrese un usuario y una contraseña',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        } else {
+            document.getElementById("loginForm").submit();
+            Swal.fire({
+                title: 'Inicio de sesión exitoso',
+                text: '@TempData["MensajeCrear"]',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    }
+</script>

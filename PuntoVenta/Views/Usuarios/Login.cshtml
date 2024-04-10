@@ -5,41 +5,39 @@
 }
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-<h2 class="text-2xl font-bold mb-4">Iniciar sesión</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="text-2xl font-bold mb-4">Iniciar sesión</h2>
 
-@using (Html.BeginForm("Login", "Usuarios", FormMethod.Post, new { @class = "mt-4", id = "loginForm" }))
-{
-    @Html.AntiForgeryToken()
+                    @using (Html.BeginForm("Login", "Usuarios", FormMethod.Post, new { @class = "mt-4", id = "loginForm" }))
+                    {
+                        @Html.AntiForgeryToken()
 
-    <div class="mb-4">
-        @Html.LabelFor(m => m.Username, new { @class = "block text-gray-700 font-bold mb-2" })
-        @Html.TextBoxFor(m => m.Username, new { @class = "form-input w-full", id = "Username" })
-        @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-red-500" })
+                        <div class="mb-4">
+                            @Html.LabelFor(m => m.Username, new { @class = "block text-gray-700 font-bold mb-2" })
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", id = "Username" })
+                            @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-red-500" })
+                        </div>
+
+                        <div class="mb-4">
+                            @Html.LabelFor(m => m.Password, new { @class = "block text-gray-700 font-bold mb-2" })
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", id = "Password" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-red-500" })
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="validateForm()">Iniciar sesión</button>
+                    }
+
+                    @* Agregar botón para redirigir a la vista de registro *@
+                    @Html.ActionLink("¿No tienes una cuenta? Regístrate aquí", "CreateL", "Usuarios", null, new { @class = "btn btn-link" })
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-4">
-        @Html.LabelFor(m => m.Password, new { @class = "block text-gray-700 font-bold mb-2" })
-        @Html.PasswordFor(m => m.Password, new { @class = "form-input w-full", id = "Password" })
-        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-red-500" })
-    </div>
-
-    <button type="button" class="btn btn-primary" onclick="validateForm()">Iniciar sesión</button>
-}
-
-@if (TempData["Mensaje"] != null)
-{
-    <script>
-        Swal.fire({
-            title: 'Inicio de sesión exitoso',
-            text: '@TempData["Mensaje"]',
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
-        });
-    </script>
-}
-
-@* Agregar botón para redirigir a la vista de registro *@
-@Html.ActionLink("¿No tienes una cuenta? Regístrate aquí", "CreateL", "Usuarios", null, new { @class = "btn btn-link" })
+</div>
 
 <script>
     function validateForm() {
@@ -55,6 +53,12 @@
             });
         } else {
             document.getElementById("loginForm").submit();
+            Swal.fire({
+                title: 'Inicio de sesión exitoso',
+                text: '@TempData["Mensaje"]',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            });
         }
     }
 </script>

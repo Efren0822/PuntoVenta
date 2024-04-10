@@ -14,6 +14,11 @@
                 @Html.EditorFor(model => model.strNombre, new { htmlAttributes = new { @class = "form-input" } })
                 @Html.ValidationMessageFor(model => model.strNombre, "", new { @class = "text-red-500" })
             </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.strPassword, htmlAttributes: new { @class = "block text-gray-700 font-bold mb-2" })
+                @Html.EditorFor(model => model.strPassword, new { htmlAttributes = new { @class = "form-input" } })
+                @Html.ValidationMessageFor(model => model.strPassword, "", new { @class = "text-red-500" })
+            </div>
 
             <div class="form-group">
                 @Html.LabelFor(model => model.IdUsuCatEstado, "Estado", htmlAttributes: new { @class = "block text-gray-700 font-bold mb-2" })

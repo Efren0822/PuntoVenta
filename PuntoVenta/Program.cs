@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PuntoVenta.Models;
 using MySql.Data.EntityFrameworkCore.Extensions;
+using PuntoVenta.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,15 +26,18 @@ options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
     sqlOptions.EnableRetryOnFailure();
 }));
 
+
 /*
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString,
     ServerVersion.Parse("8.0.28")));
 */
 
 
+//builder.Services.AddSingleton<ServicioToken>(new ServicioToken(builder.Configuration["Jwt:SecretKey"]));
+
+
 var app = builder.Build();
 
-// Configurar el pipeline de solicitud HTTP.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
