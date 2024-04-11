@@ -29,9 +29,15 @@ namespace PuntoVenta.Controllers
             _context = context;
             _logger = logger;
         }
-        public IActionResult Productos()
+        public IActionResult Productos(int pagina = 1)
         {
-            var proProductos = _context.Productos.ToList();
+            int registrosPorPagina = 10;
+            var totalProductos = _context.Productos.Count();
+            var totalPaginas = (int)Math.Ceiling((double)totalProductos / registrosPorPagina);
+            var productos = _context.Productos
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToList();
 
             // Consultas adicionales para obtener los nombres de categorías y subcategorías
             var categoriaNombres = _context.Categorias.ToDictionary(c => c.IdCat, c => c.strNombreCategoria);
@@ -39,10 +45,11 @@ namespace PuntoVenta.Controllers
 
             ViewBag.CategoriaNombres = categoriaNombres;
             ViewBag.SubcategoriaNombres = subcategoriaNombres;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
 
-            return View(proProductos);
+            return View(productos);
         }
-
 
 
 
