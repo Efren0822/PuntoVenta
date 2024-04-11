@@ -104,7 +104,6 @@ namespace PuntoVenta.Controllers
         }
 
 
-
         [HttpPost]
         public IActionResult Eliminar(int id)
         {
@@ -112,6 +111,16 @@ namespace PuntoVenta.Controllers
             if (producto == null)
             {
                 return NotFound();
+            }
+
+            // Verificar si el producto tiene ventas asociadas en la tabla VenVentaProducto
+            var tieneVentas = _context.VenVentaProductos.Any(vvp => vvp.idProProducto == id);
+
+            if (tieneVentas)
+            {
+                // Producto tiene ventas asociadas, mostrar mensaje de advertencia
+                TempData["ErrorMessage"] = "No se puede eliminar el producto porque tiene ventas asociadas.";
+                return RedirectToAction("Productos"); // Redirige a la acción "Productos"
             }
 
             try
@@ -126,6 +135,7 @@ namespace PuntoVenta.Controllers
                 return RedirectToAction("Productos"); // Redirige a la acción "Productos" si hay un error
             }
         }
+
 
 
         // Acción para mostrar la vista del formulario

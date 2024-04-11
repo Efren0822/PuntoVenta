@@ -135,7 +135,21 @@
             @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
         </div>
     </div>
+
+    @{
+        var errorMessage = TempData["ErrorMessage"] as string;
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <script>
+            alert("@errorMessage");
+        </script>
+    }
 </body>
+
+
+
 <script>
     function searchProducts() {
         var nameInput = document.getElementById("name-search-input").value.toUpperCase();
