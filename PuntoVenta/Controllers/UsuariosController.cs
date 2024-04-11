@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PuntoVenta.ViewModels;
 using PuntoVenta.Helpers;
+using PuntoVenta.Servicios;
 
 namespace PuntoVenta.Controllers
 {
@@ -18,12 +19,18 @@ namespace PuntoVenta.Controllers
         private readonly ApplicationDbContext _context;
 
         private readonly ILogger<UsuariosController> _logger;
+        //private readonly ServicioToken _tokenService;
 
-        public UsuariosController(ApplicationDbContext context, ILogger<UsuariosController> logger)
+        public UsuariosController(ApplicationDbContext context, ILogger<UsuariosController> logger//, ServicioToken tokenService
+            )
         {
             _context = context;
             _logger = logger;
+            //_tokenService = tokenService;
         }
+        
+
+      
 
         public IActionResult Index(int pagina = 1)
         {
@@ -94,12 +101,14 @@ namespace PuntoVenta.Controllers
 
             if (user)
             {
-                TempData["Mensaje"] = "¡Bienvenido, " + model.Username + "!";
+                TempData["Mensaje"] = "Bienvenido, " + model.Username + "";
                 return RedirectToAction("Index");
             }
             else
             {
                 ModelState.AddModelError("", "Nombre de usuario y/o contraseña incorrectos.");
+                TempData["MensajeErrorL"] = "Nombre de usuario y/o contraseña incorrecto";
+                
                 return View(model);
             }
         }
@@ -129,6 +138,7 @@ namespace PuntoVenta.Controllers
             var usuario = _context.UsuUsuario.Find(id);
             _context.UsuUsuario.Remove(usuario);
             _context.SaveChanges();
+            TempData["MensajeBorrar"] = "¡Se ha eliminado al usuario, " + "!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -240,8 +250,6 @@ namespace PuntoVenta.Controllers
                                 .ToList();
                     return View(usuario);
                 }
-
-                usuario.strPassword = Encriptacion.Encriptar(usuario.strPassword);
             }
             else
             {
@@ -260,6 +268,7 @@ namespace PuntoVenta.Controllers
 
                 _context.UsuUsuario.Add(usuario);
                 _context.SaveChanges();
+                TempData["MensajeCrear"] = "¡Se ha registrado al usuario, "+ usuario + "!";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -275,6 +284,7 @@ namespace PuntoVenta.Controllers
             ViewBag.TipoUsuario = _context.UsuCatTipoUsuario
                         .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.strTipoUsuario })
                         .ToList();
+            TempData["MensajeCrearError"] = "¡Ha ocurrido un error al guardar al usuario " + "!";
             return View(usuario);
         }
 
@@ -288,6 +298,7 @@ namespace PuntoVenta.Controllers
             }
 
             var usuario = _context.UsuUsuario
+                
                 .Include(u => u.Estado)
                 .Include(u => u.TipoUsuario)
                 .FirstOrDefault(u => u.Id == id);
@@ -340,7 +351,7 @@ namespace PuntoVenta.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Editar(int id, [Bind("Id,strNombre,IdUsuCatEstado,IdUsuCatTipoUsuario")] Usuario usuario)
+        public IActionResult Editar(int id, [Bind("Id,strNombre,strPassword,IdUsuCatEstado,IdUsuCatTipoUsuario")] Usuario usuario)
         {
             if (id != usuario.Id)
             {
@@ -378,8 +389,8 @@ namespace PuntoVenta.Controllers
                     return View(usuario);
                 }
             }
-
-            // Si la validación falla, obtener nuevamente las listas de estados y tipos de usuario y pasarlas a la vista
+            ModelState.AddModelError("", "Ocurrió un error al guardar los cambios: ");
+            Console.WriteLine("error: " );
             ViewBag.Estados = _context.UsuCatEstado
                 .Select(e => new SelectListItem
                 {

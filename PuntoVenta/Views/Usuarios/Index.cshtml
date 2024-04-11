@@ -3,171 +3,181 @@
     ViewBag.Title = "Usuarios";
 }
 
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PuntoVenta</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Index">Home</a>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Agrega cualquier otra referencia a CSS que necesites -->
+</head>
+<body>
 
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Productos">Productos</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Ventas">Ventas</a>
-                    </li>
-
-                </ul>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PuntoVenta</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Productos">Productos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Ventas">Ventas</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h2 class="text-center text-2xl font-bold mb-4">@ViewBag.Title</h2>
 
-<h2 class="text-2xl font-bold mb-4">@ViewBag.Title</h2>
+                <div class="container mx-auto p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <label class="ml-4 text-gray-600">Registrar usuario</label>
+                            <a href="@Url.Action("Create", "Usuarios")" class="btn btn-success">Agregar usuario</a>
+                        </div>
+                        <div>
+                            <div>
+                                <label for="search-input" class="text-gray-600">Buscar por nombre:</label>
+                                <input type="text" id="search-input" placeholder="Buscar por nombre" oninput="searchUsers()"
+                                       class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 w-1/4">
+                            </div>
+                            <div>
+                                <label for="status-filter" class="text-gray-600">Filtrar por estado:</label>
+                                <select id="status-filter" onchange="searchUsers()"
+                                        class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    <option value="">Todos</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="type-filter" class="text-gray-600">Filtrar por tipo de usuario:</label>
+                                <select id="type-filter" onchange="searchUsers()"
+                                        class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    <option value="">Todos</option>
+                                    <option value="Administrador">Administrador</option>
+                                    <option value="Usuario Normal">Usuario Normal</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-<body class="bg-gray-100">
+                    <div class="overflow-x-auto">
+                        <table class="table-auto w-full">
+                            <thead class="bg-gray-800 text-black">
+                                <tr>
+                                    <th class="px-4 py-2">Nombre de Usuario</th>
+                                    <th class="px-4 py-2">Estado</th>
+                                    <th class="px-4 py-2">Tipo de Usuario</th>
+                                    <th class="px-4 py-2">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body">
+                                @foreach (var usuario in Model)
+                                {
+                                    <tr>
+                                        <td class="border px-4 py-2">@usuario.strNombre</td>
+                                        <td class="border px-4 py-2">@usuario.NombreEstado</td>
+                                        <td class="border px-4 py-2">@usuario.NombreTipoUsuario</td>
+                                        <td class="border px-4 py-2">
+                                            @Html.ActionLink("Detalles", "Detalles", new { id = usuario.Id }, new { @class = "btn btn-info" })
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
 
-    <div class="container mx-auto p-4">
+                    <div class="mt-4">
+                        @if (ViewBag.PaginaActual > 1)
+                        {
+                            <a href="@Url.Action("Index", "Usuarios", new { pagina = 1 })" class="btn btn-primary">Primera</a>
+                            <a href="@Url.Action("Index", "Usuarios", new { pagina = ViewBag.PaginaActual - 1 })" class="btn btn-primary">Anterior</a>
+                        }
 
-        <div class="flex justify-between items-center mb-4">
-            <div>
-                <label class="ml-4 text-gray-600">Registrar usuario</label>
-                <a href="@Url.Action("Create", "Usuarios")" class="btn btn-success">Agregar usuario</a>
-                
+                        Página @(ViewBag.PaginaActual) de @(ViewBag.TotalPaginas)
+
+                        @if (ViewBag.PaginaActual < ViewBag.TotalPaginas)
+                        {
+                            <a href="@Url.Action("Index", "Usuarios", new { pagina = ViewBag.PaginaActual + 1 })" class="btn btn-primary">Siguiente</a>
+                            <a href="@Url.Action("Index", "Usuarios", new { pagina = ViewBag.TotalPaginas })" class="btn btn-primary">Ultima</a>
+                        }
+                    </div>
+                </div>
+                <div>
+                    @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
+                </div>
             </div>
-            <div>
-            <div>
-                <label for="search-input" class="text-gray-600">Buscar por nombre:</label>
-                <input type="text" id="search-input" placeholder="Buscar por nombre" oninput="searchUsers()"
-                       class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 w-1/4">
-            </div>
-
-            <div>
-                <label for="status-filter" class="text-gray-600">Filtrar por estado:</label>
-                <select id="status-filter" onchange="searchUsers()"
-                        class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <option value="">Todos</option>
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="type-filter" class="text-gray-600">Filtrar por tipo de usuario:</label>
-                <select id="type-filter" onchange="searchUsers()"
-                        class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <option value="">Todos</option>
-                    <option value="Administrador">Administrador</option>
-                    <option value="Usuario Normal">Usuario Normal</option>
-                </select>
-            </div>
-            </div>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="table-auto w-full">
-                <thead class="bg-gray-800 text-black">
-                    <tr>
-                        <th class="px-4 py-2">Nombre de Usuario</th>
-                        <th class="px-4 py-2">Estado</th>
-                        <th class="px-4 py-2">Tipo de Usuario</th>
-                        <th class="px-4 py-2">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="user-table-body">
-                    @foreach (var usuario in Model)
-                    {
-                        <tr>
-                            <td class="border px-4 py-2">@usuario.strNombre</td>
-                            <td class="border px-4 py-2">@usuario.NombreEstado</td>
-                            <td class="border px-4 py-2">@usuario.NombreTipoUsuario</td>
-                            <td class="border px-4 py-2">
-                                @Html.ActionLink("Detalles", "Detalles", new { id = usuario.Id }, new { @class = "btn btn-info" })
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="mt-4">
-            @if (ViewBag.PaginaActual > 1)
-            {
-                <a href="@Url.Action("Index", "Usuarios", new { pagina = 1 })" class="btn btn-primary">Primera</a>
-                <a href="@Url.Action("Index", "Usuarios", new { pagina = ViewBag.PaginaActual - 1 })" class="btn btn-primary">Anterior</a>
-            }
-
-            Página @(ViewBag.PaginaActual) de @(ViewBag.TotalPaginas)
-
-            @if (ViewBag.PaginaActual < ViewBag.TotalPaginas)
-            {
-                <a href="@Url.Action("Index", "Usuarios", new { pagina = ViewBag.PaginaActual + 1 })" class="btn btn-primary">Siguiente</a>
-                <a href="@Url.Action("Index", "Usuarios", new { pagina = ViewBag.TotalPaginas })" class="btn btn-primary">Ultima</a>
-            }
         </div>
     </div>
-    <div>
-        @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
-    </div>
-</body>
 
-<script>
-    var filterValue = "";
-    var statusFilterValue = "";
-    var typeFilterValue = "";
-    var currentPage = 1;
-    var pageSize = 10;
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var filterValue = "";
+        var statusFilterValue = "";
+        var typeFilterValue = "";
+        var currentPage = 1;
+        var pageSize = 10;
 
-    function searchUsers() {
-        var input = document.getElementById("search-input");
-        filterValue = input.value.toUpperCase();
+        function searchUsers() {
+            var input = document.getElementById("search-input");
+            filterValue = input.value.toUpperCase();
 
-        statusFilterValue = document.getElementById("status-filter").value.toUpperCase();
-        typeFilterValue = document.getElementById("type-filter").value.toUpperCase();
+            statusFilterValue = document.getElementById("status-filter").value.toUpperCase();
+            typeFilterValue = document.getElementById("type-filter").value.toUpperCase();
 
-        var tableBody = document.getElementById("user-table-body");
-        var rows = tableBody.getElementsByTagName("tr");
+            var tableBody = document.getElementById("user-table-body");
+            var rows = tableBody.getElementsByTagName("tr");
 
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            var nameColumn = row.getElementsByTagName("td")[0];
-            var statusColumn = row.getElementsByTagName("td")[1];
-            var typeColumn = row.getElementsByTagName("td")[2];
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var nameColumn = row.getElementsByTagName("td")[0];
+                var statusColumn = row.getElementsByTagName("td")[1];
+                var typeColumn = row.getElementsByTagName("td")[2];
 
-            if (nameColumn && statusColumn && typeColumn) {
-                var nameMatch = nameColumn.textContent.toUpperCase().includes(filterValue);
-                var statusMatch = statusFilterValue === "" || statusColumn.textContent.toUpperCase() === statusFilterValue;
-                var typeMatch = typeFilterValue === "" || typeColumn.textContent.toUpperCase() === typeFilterValue;
+                if (nameColumn && statusColumn && typeColumn) {
+                    var nameMatch = nameColumn.textContent.toUpperCase().includes(filterValue);
+                    var statusMatch = statusFilterValue === "" || statusColumn.textContent.toUpperCase() === statusFilterValue;
+                    var typeMatch = typeFilterValue === "" || typeColumn.textContent.toUpperCase() === typeFilterValue;
 
-                row.style.display = (nameMatch && statusMatch && typeMatch) ? "" : "none";
-            }
-        }
-    }
-
-    function editarUsuario(id) {
-        window.location.href = "/Usuarios/Editar/" + id;
-    }
-
-    function eliminarUsuario(id) {
-        if (confirm("¿Estas seguro de borrar a este usuario?")) {
-            fetch("/Usuarios/eliminar/" + id, {
-                method: "DELETE"
-            }).then(response => {
-                if (response.ok) {
-                    searchUsers();
-                } else {
-                    alert("¡Error al eliminar al usuario!");
+                    row.style.display = (nameMatch && statusMatch && typeMatch) ? "" : "none";
                 }
-            })
+            }
         }
-    }
-</script>
+
+        function editarUsuario(id) {
+            window.location.href = "/Usuarios/Editar/" + id;
+        }
+
+        function eliminarUsuario(id) {
+            if (confirm("¿Estas seguro de borrar a este usuario?")) {
+                fetch("/Usuarios/eliminar/" + id, {
+                    method: "DELETE"
+                }).then(response => {
+                    if (response.ok) {
+                        searchUsers();
+                    } else {
+                        alert("¡Error al eliminar al usuario!");
+                    }
+                })
+            }
+        }
+    </script>
+</body>
+</html>
