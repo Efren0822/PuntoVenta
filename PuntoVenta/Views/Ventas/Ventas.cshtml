@@ -53,8 +53,6 @@
 
     <h2>Crear Venta</h2>
 
-<h2>Crear Venta</h2>
-
     <div>
         <strong>Folio de la última venta:</strong> @ViewBag.UltimoFolioVenta
     </div>
@@ -102,16 +100,11 @@
         <input type="text" id="subtotal" class="form-control" readonly />
     </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h4>Atendido por: <span id="username">@username</span></h4>
-        </div>
-    </div>
-</div>
-
 <div>
-    @Html.ActionLink("Mostrar usuario","MostrarUsuario",null,new{@class="btn btn-primary"})
+    <h4>Atendido por: <span id="username">@ViewBag.Username</span></h4>
+    <input type="hidden" id="userId" value="@ViewBag.UserId" />
+
+
 </div>
 
 <button type="button" id="agregarBtn" class="btn btn-primary">Agregar</button>

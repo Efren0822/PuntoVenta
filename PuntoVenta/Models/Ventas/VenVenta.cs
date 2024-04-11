@@ -12,5 +12,6 @@ namespace PuntoVenta.Models.Ventas
         public string strFolio { get; set; }
         public DateTime dtFecha { get; set; }
         public int idVenCatEstado { get; set; }
+        public string UsernameEmpleado {  get; set; }
     }
 }
