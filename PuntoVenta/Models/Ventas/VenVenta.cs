@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PuntoVenta.Models.Productos;
 
 namespace PuntoVenta.Models.Ventas
 {
@@ -13,6 +14,12 @@ namespace PuntoVenta.Models.Ventas
         public DateTime dtFecha { get; set; }
         public int idVenCatEstado { get; set; }
         public string UsernameEmpleado {  get; set; }
-        public object DetallesVentas { get; internal set; }
+        public ICollection<DetalleVenta> DetallesVentas { get; set; }
     }
+}
+public class DetalleVenta
+{
+    // Otras propiedades...
+
+    public Products Producto { get; set; }
 }
