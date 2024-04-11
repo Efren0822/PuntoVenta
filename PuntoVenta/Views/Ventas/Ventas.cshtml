@@ -306,7 +306,7 @@
                     var cantidad = $('#cantidad').val();
                     var precio = $('#precio').val();
                     var subtotal = $('#subtotal').val();
-                var productoId = $('#idPro').val();
+                    var productoId = $('#idPro').val();
                     var stock = $('#stockr').val();
 
                     // Validar si los campos están vacíos
@@ -339,6 +339,7 @@
                     $('#stock').val('');
                     $('#stockr').val('');
                     $('#precio').val('');
+                    $('#cajero').val('');
                     $('#subtotal').val('');
                 });
 
@@ -353,11 +354,12 @@
             });
 
         $('#finalizarVentaBtn').click(function () {
+
             var productos = [];
             $('#carrito tbody tr').each(function () {
-                var idProducto = $(this).find('td:eq(0)').text(); // Obtener el contenido de la primera celda (ID del producto)
+               var idProducto = $(this).find('td:eq(0)').text(); // Obtener el contenido de la primera celda (ID del producto)
                 var cantidad = $(this).find('td:eq(3)').text(); // Obtener el contenido de la tercera celda (cantidad)
-                var subtotal = $(this).find('td:eq(5)').text(); //
+                var subtotal = $(this).find('td:eq(5)').text();
                 var stock = $(this).find('td:eq(2)').text(); // Obtener el contenido de la tercera celda (stock)
 
                 productos.push({
@@ -375,10 +377,10 @@
             };
 
             var folio = $('#Folio').val(); // Obtener el folio de la venta
-
             console.log('Folio de la venta:', folio); // Agregamos este console.log para mostrar el folio antes de enviarlo
-
             console.log('Productos a enviar al controlador:', productos); // Agregamos este console.log para mostrar los productos antes de enviarlos
+
+            // Agregamos este console.log para mostrar los productos antes de enviarlos
 
             // Resto de tu código existente para enviar los datos al controlador
             // Enviar los datos al controlador
