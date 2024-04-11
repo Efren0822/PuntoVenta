@@ -516,18 +516,19 @@ namespace PuntoVenta.Controllers
             document.Add(new Paragraph($"Fecha: {venta.dtFecha.ToShortDateString()}"));
             document.Add(new Paragraph($"Estado: {_context.venCatEstado.FirstOrDefault(e => e.idVenCatEstado == venta.idVenCatEstado)?.strNombre ?? "Estado no encontrado"}"));
 
-            
+            decimal totalVenta = 0;
             var productosVenta = _context.VenVentaProductos.Where(vp => vp.idVenVenta == venta.idVenVenta).ToList();
             foreach (var productoVenta in productosVenta)
             {
                 var producto = _context.Productos.FirstOrDefault(p => p.IdPro == productoVenta.idProProducto);
                 if (producto != null)
                 {
+                    totalVenta += productoVenta.curTotal;
                     document.Add(new Paragraph($"Producto: {producto.StrNombrePro}, Cantidad: {productoVenta.decCantidad}, Precio Total: {productoVenta.curTotal}"));
                 }
             }
+            document.Add(new Paragraph($"Total de Venta: {totalVenta}"));
 
-            
             document.Close();
 
             
