@@ -19,7 +19,10 @@ namespace PuntoVenta.Models
 
         public DbSet<Categorias> Categorias { get; set; }
         public DbSet<SubCategorias> SubCategorias { get; set; }
-       // public DbSet<VenVentaPoducto> venVentaProductos { get; set; }  
+        public DbSet<VenVenta> VenVenta { get; set; }
+
+        public DbSet<venCatEstado> venCatEstado { get; set; }
+        public DbSet<VenVentaProducto> VenVentaProductos { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -28,23 +31,40 @@ namespace PuntoVenta.Models
 
             modelBuilder.Entity<Usuario>().ToTable("UsuUsuario");
 
-         
+            modelBuilder.Entity<venCatEstado>().ToTable("VenCatEstado")
+                .HasKey(vc => vc.idVenCatEstado);
+
+            modelBuilder.Entity<VenVenta>().ToTable("VenVenta")
+            .HasKey(v => v.idVenVenta);
+
+            modelBuilder.Entity<VenVentaProducto>().ToTable("VenVentaProducto")
+         .HasKey(vp => vp.idVenVentaProducto);
+
+
             //products se utiliza para la visualizacion de los productos
             modelBuilder.Entity<Products>().ToTable("ProProducto")
                    
                               .HasKey(p => p.IdPro);
 
 
+            modelBuilder.Entity<VenVentaProducto>()
+            .Property(vp => vp.curTotal)
+            .HasColumnType("decimal(18, 2)"); // Especifica el tipo de columna SQL para curTotal
 
-          
+            modelBuilder.Entity<VenVentaProducto>()
+                .Property(vp => vp.decCantidad)
+                .HasColumnType("decimal(18, 2)");
 
-       
+
+
             // Configuración de la precisión para propiedades decimales
             modelBuilder.Entity<Products>().Property(p => p.decMaximo).HasPrecision(18, 2);
             modelBuilder.Entity<Products>().Property(p => p.decMinimo).HasPrecision(18, 2);
             modelBuilder.Entity<Products>().Property(p => p.decStock).HasPrecision(18, 2);
             modelBuilder.Entity<Products>().Property(p => p.curCosto).HasPrecision(18, 2);
             modelBuilder.Entity<Products>().Property(p => p.curPrecio).HasPrecision(18, 2);
+
+
 
 
             modelBuilder.Entity<Categorias>().ToTable("ProCatCategoria")

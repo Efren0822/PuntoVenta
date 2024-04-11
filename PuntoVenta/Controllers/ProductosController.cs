@@ -4,6 +4,17 @@ using PuntoVenta.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using PuntoVenta.Models.Productos;
+using PuntoVenta.Models.Ventas;
+
+using Rotativa.AspNetCore;
+using System.IO;
+using System.Reflection.Metadata;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using System.IO;
+using iText.Layout.Element;
+
+
 
 namespace PuntoVenta.Controllers
 {
@@ -70,7 +81,7 @@ namespace PuntoVenta.Controllers
             public string SubCategoriaNombre { get; set; }
         }
 
-        
+
 
         public IActionResult Editar(int? id)
         {
@@ -85,7 +96,7 @@ namespace PuntoVenta.Controllers
             return View(producto);
         }
 
-       
+
 
         [HttpPost]
         public IActionResult Eliminar(int id)
@@ -144,7 +155,7 @@ namespace PuntoVenta.Controllers
 
                 try
                 {
-                 
+
                     _context.Add(producto);
                     _context.SaveChanges();
                     return RedirectToAction("Productos");
@@ -197,6 +208,9 @@ namespace PuntoVenta.Controllers
             ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>());
             ViewBag.Productos = new SelectList(Enumerable.Empty<SelectListItem>());
 
+            // Define la lista de categorías para el dropdown de categorías
+            ViewBag.idProCatCategoria = new SelectList(_context.Categorias, "IdCat", "strNombreCategoria");
+
             return View("~/Views/Ventas/Ventas.cshtml");
         }
 
@@ -226,6 +240,7 @@ namespace PuntoVenta.Controllers
                 {
                     var data = new
                     {
+                        id = producto.IdPro, // Agregar el ID del producto a la respuesta
                         stock = producto.decStock,
                         precio = producto.curPrecio
                     };
@@ -243,10 +258,275 @@ namespace PuntoVenta.Controllers
             }
         }
 
+        public IActionResult detalleVentas()
+        {
+            // Consultar todas las ventas con sus nombres de estado correspondientes
+            var ventasConEstado = _context.VenVenta
+                .Select(venta => new
+                {
+                    strFolio = venta.strFolio,
+                    dtFecha = venta.dtFecha,
+                    EstadoNombre = _context.venCatEstado.FirstOrDefault(e => e.idVenCatEstado == venta.idVenCatEstado) != null ? _context.venCatEstado.FirstOrDefault(e => e.idVenCatEstado == venta.idVenCatEstado).strNombre : "Estado no encontrado" // Obtener el nombre del estado por su ID
+                })
+                .ToList();
+
+            ViewBag.Ventas = ventasConEstado;
+
+            return View("~/Views/Ventas/detalleVentas.cshtml");
+        }
+
+        public IActionResult CancelarVenta(string strFolio)
+        {
+            // Buscar la venta por el folio proporcionado
+            var venta = _context.VenVenta.FirstOrDefault(v => v.strFolio == strFolio);
+
+            if (venta != null)
+            {
+                // Actualizar el estado de la venta a "cancelada" (suponiendo que el estado "cancelada" tiene un id de 2)
+                venta.idVenCatEstado = 2; // Suponiendo que el estado "cancelada" tiene un id de 2
+                _context.SaveChanges();
+            }
+
+            // Redirigir a la vista de ventas
+            return RedirectToAction("detalleVentas");
+        }
 
 
 
+
+
+
+        [HttpGet]
+
+
+        public IActionResult ObtenerUltimoIdVenta()
+        {
+            try
+            {
+                var ultimoIdVenta = _context.VenVenta.OrderByDescending(v => v.idVenVenta).Select(v => v.idVenVenta).FirstOrDefault();
+
+                // Validar si se encontró algún ID de venta
+                if (ultimoIdVenta != null)
+                {
+                    // Devolver el ID de la última venta encontrado
+                    return Json(ultimoIdVenta);
+                }
+                else
+                {
+                    // Si no se encontró ningún ID de venta, devolver un valor predeterminado, como 0
+                    return Json(0);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener el último ID de venta: {ErrorMessage}", ex.Message);
+                return Json(null); // Devolver un valor predeterminado o un mensaje de error
+            }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> FinalizarVenta([FromBody] VentaViewModel venta)
+        {
+            try
+            {
+                if (venta.Productos == null || venta.Productos.Count == 0)
+                {
+                    Console.WriteLine($"Folio recibido en el controlador: {venta.Folio}");
+                    Console.WriteLine($"Cantidad de productos recibidos en el controlador: {(venta.Productos != null ? venta.Productos.Count.ToString() : "0")}"); // Verificar si Productos es nulo antes de contar
+                    _logger.LogError("La lista de productos de la venta es nula o vacía.");
+                    return RedirectToAction("detalleVentas"); // Redirigir a la vista de ventas si no se reciben productos
+                }
+
+                _logger.LogInformation("Recibida solicitud de finalizar venta. Folio: {Folio}, Cantidad de productos: {CantidadProductos}", venta.Folio, venta.Productos.Count);
+
+                // Lógica para crear una nueva venta
+                var nuevaVenta = new VenVenta
+                {
+                    idUsuUsuario = 1, // Valor fijo como mencionaste
+                    dtFecha = DateTime.Now,
+                    idVenCatEstado = 1, // Estado de venta fijo como mencionaste
+                    strFolio = venta.Folio // Folio enviado desde la vista de ventas
+                };
+
+                // Agregar la venta a la base de datos y guardar
+                _context.VenVenta.Add(nuevaVenta);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Venta creada correctamente. ID de venta: {IdVenta}", nuevaVenta.idVenVenta);
+
+                // Obtenemos el ID de la venta recién creada
+                int idVenta = nuevaVenta.idVenVenta;
+
+                // Lógica para agregar los productos vendidos
+                foreach (var productoVenta in venta.Productos)
+                {
+                    if (productoVenta == null)
+                    {
+                        _logger.LogError("ProductoVenta es null en la lista de Productos.");
+                        continue;
+                    }
+
+                    // Asignamos el ID de la venta al producto
+                    var nuevoProductoVenta = new VenVentaProducto
+                    {
+                        idVenVenta = idVenta,
+                        idProProducto = productoVenta.IdProProducto,
+                        decCantidad = productoVenta.Cantidad,
+                        curTotal = productoVenta.Total
+                    };
+                    _context.VenVentaProductos.Add(nuevoProductoVenta);
+
+                    // Actualizar el campo Stock en la tabla ProProductos
+                    var producto = await _context.Productos.FindAsync(productoVenta.IdProProducto);
+                    if (producto != null)
+                    {
+                        producto.decStock = productoVenta.Stock; // Actualizar el stock con el valor recibido
+                        _context.Productos.Update(producto);
+                    }
+                }
+
+                // Guardar todos los productos de la venta en la base de datos
+                await _context.SaveChangesAsync();
+
+                // Devolver una confirmación o redirigir a otra vista
+                return RedirectToAction("detalleVentas");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al finalizar la venta: {ErrorMessage}", ex.Message);
+                // Manejar el error aquí
+                return RedirectToAction("Ventas"); // Redirigir a la vista de ventas si ocurre un error
+            }
+        }
+
+
+
+
+
+        [HttpGet]
+        public IActionResult ObtenerIdProductoPorNombre(string nombreProducto)
+        {
+            try
+            {
+                var producto = _context.Productos.FirstOrDefault(p => p.StrNombrePro == nombreProducto);
+                if (producto != null)
+                {
+                    return Json(producto.IdPro);
+                }
+                else
+                {
+                    return Json(null); // Si no se encuentra el producto, devuelve null
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener el ID del producto por nombre: {ErrorMessage}", ex.Message);
+                return Json(null); // Manejar errores devolviendo null
+            }
+        }
+
+        //public IActionResult ImprimirTicket(string strFolio)
+        //{
+        //    Creamos un MemoryStream para almacenar el contenido del PDF
+        //    using (var stream = new MemoryStream())
+        //    {
+        //        Inicializamos un nuevo documento PDF
+        //       var writer = new PdfWriter(stream);
+        //        var pdf = new PdfDocument(writer);
+        //        iText.Layout.Document document = new iText.Layout.Document(pdf);
+
+        //        try
+        //        {
+        //            Agregamos el texto "Hola" al documento
+        //            Paragraph paragraph = new Paragraph("Hola");
+        //            document.Add(paragraph);
+
+        //            Cerramos el documento
+        //            document.Close();
+
+        //            Convertimos el MemoryStream en un array de bytes para descargar el PDF
+        //            var pdfBytes = stream.ToArray();
+
+        //            Descargamos el PDF como un archivo adjunto
+        //            return File(pdfBytes, "application/pdf", "ticket.pdf");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Manejamos cualquier excepción que pueda ocurrir durante la generación del PDF
+        //            En este caso, simplemente retornamos un mensaje de error
+        //            return Content($"Error al generar el ticket: {ex.Message}");
+        //        }
+        //    }
+        //}
+
+
+    public IActionResult ImprimirTicket(string strFolio)
+{
+    // Creamos un MemoryStream para almacenar el contenido del PDF
+    using (var stream = new MemoryStream())
+    {
+        // Inicializamos un nuevo documento PDF
+        var writer = new PdfWriter(stream);
+        var pdf = new PdfDocument(writer);
+        var document = new iText.Layout.Document(pdf);
+
+        try
+        {
+            // Consultar los datos de la venta correspondiente al folio proporcionado (suponiendo que tienes acceso al contexto de la base de datos)
+            var venta = _context.VenVenta.FirstOrDefault(v => v.strFolio == strFolio);
+
+            // Si no se encuentra la venta, mostrar un mensaje de error
+            if (venta == null)
+            {
+                return Content($"No se encontró la venta con el folio {strFolio}");
+            }
+
+            // Agregar los datos de la venta al documento PDF
+            Paragraph titulo = new Paragraph("Detalle de la Venta");
+            document.Add(titulo);
+
+            // Agregar información de la venta al documento PDF
+            Paragraph folio = new Paragraph($"Folio: {venta.strFolio}");
+            document.Add(folio);
+
+            // Agregar fecha de la venta
+            Paragraph fecha = new Paragraph($"Fecha: {venta.dtFecha.ToShortDateString()}");
+            document.Add(fecha);
+
+            //// Agregar información del cliente si está disponible
+            //if (venta.Cliente != null)
+            //{
+            //    Paragraph cliente = new Paragraph($"Cliente: {venta.Cliente.Nombre} ({venta.Cliente.Correo})");
+            //    document.Add(cliente);
+            //}
+
+            //// Agregar detalles de los productos vendidos
+            //foreach (var detalle in venta.DetallesVenta)
+            //{
+            //    Paragraph producto = new Paragraph($"Producto: {detalle.Producto.Nombre}, Cantidad: {detalle.Cantidad}, Precio Unitario: {detalle.PrecioUnitario}");
+            //    document.Add(producto);
+            //}
+
+            // Cerrar el documento
+            document.Close();
+
+            // Convertir el MemoryStream en un array de bytes para descargar el PDF
+            var pdfBytes = stream.ToArray();
+
+            // Descargar el PDF como un archivo adjunto
+            return File(pdfBytes, "application/pdf", "ticket.pdf");
+        }
+        catch (Exception ex)
+        {
+            // Manejar cualquier excepción que pueda ocurrir durante la generación del PDF
+            return Content($"Error al generar el ticket: {ex.Message}");
+        }
+    }
+}
 
 
     }
+
 }

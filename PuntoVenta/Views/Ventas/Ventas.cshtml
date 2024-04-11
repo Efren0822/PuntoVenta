@@ -1,247 +1,422 @@
-﻿@model PuntoVenta.Models.Productos.Products
+﻿    @model PuntoVenta.Models.Productos.Products
 
-@{
-    ViewData["Title"] = "Crear Venta";
-}
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PuntoVenta</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+    @{
+        ViewData["Title"] = "Crear Venta";
+    }
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PuntoVenta</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
 
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
 
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Productos">Productos</a>
-                    </li>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Productos">Productos</a>
+                        </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Ventas">Ventas</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Ventas">Ventas</a>
+                        </li>
 
-                </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 
-<h2>Crear Venta</h2>
+    <h2>Crear Venta</h2>
 
-<div class="form-group">
-    <label>Categoría</label>
-    @Html.DropDownListFor(model => model.idProCatCategoria, (SelectList)ViewBag.Categorias, "Seleccione una categoría", new { @class = "form-control", @id = "categoriaSelect" })
-</div>
+    <div>
+        <strong>Folio de la última venta:</strong> @ViewBag.UltimoFolioVenta
+    </div>
 
-<div class="form-group">
-    <label>Subcategoría</label>
-    @Html.DropDownListFor(model => model.idProCatSubCategoria, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleccione una subcategoría", new { @class = "form-control", @id = "subcategoriaSelect" })
-</div>
+        <!-- Elemento donde se mostrará el folio -->
+        <p>Folio: <span id="folio"></span></p>
+        <!-- Campo oculto para enviar el folio al controlador -->
+        <input type="hidden" id="Folio" name="Folio"/>
+<input type="hidden" id="idPro" name="productoid" />
 
-<div class="form-group">
-    <label>Producto</label>
-    @Html.DropDownListFor(model => model.IdPro, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleccione un producto", new { @class = "form-control", @id = "productoSelect" })
-</div>
+    <div class="form-group">
+        <label>Categoría</label>
+        @Html.DropDownListFor(model => model.idProCatCategoria, (SelectList)ViewBag.Categorias, "Seleccione una categoría", new { @class = "form-control", @id = "categoriaSelect" })
+    </div>
 
-<div class="form-group">
-    <label>Stock</label>
-    <input type="text" id="stock" class="form-control" readonly />
-</div>
+    <div class="form-group">
+        <label>Subcategoría</label>
+        @Html.DropDownListFor(model => model.idProCatSubCategoria, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleccione una subcategoría", new { @class = "form-control", @id = "subcategoriaSelect" })
+    </div>
 
-<div class="form-group">
-    <label>Precio Unidad</label>
-    <input type="text" id="precio" class="form-control" readonly />
-</div>
+    <div class="form-group">
+        <label>Producto</label>
+        @Html.DropDownListFor(model => model.IdPro, new SelectList(Enumerable.Empty<SelectListItem>()), "Seleccione un producto", new { @class = "form-control", @id = "productoSelect" })
+    </div>
 
-<div class="form-group">
-    <label>Cantidad</label>
-    <input type="number" id="cantidad" class="form-control" min="1" value="1" />
-</div>
+    <input type="hidden" id="stock" name="stock" />
 
-<div class="form-group">
-    <label>Total</label>
-    <input type="text" id="subtotal" class="form-control" readonly />
-</div>
+    <div class="form-group">
+        <label>Stock</label>
+        <input type="text" id="stockr" class="form-control" readonly />
+    </div>
 
-<button type="button" id="agregarBtn" class="btn btn-primary">Agregar</button>
+    <div class="form-group">
+        <label>Precio Unidad</label>
+        <input type="text" id="precio" class="form-control" readonly />
+    </div>
 
-<!-- Tabla del Carrito de Compras -->
-<table id="carrito" class="table">
-    <thead>
-        <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio Unitario</th>
-            <th>Subtotal</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Los productos agregados al carrito aparecerán aquí -->
-    </tbody>
-</table>
+    <div class="form-group">
+        <label>Cantidad</label>
+        <input type="number" id="cantidad" class="form-control" min="1" value="1" />
+    </div>
 
-<div id="totalVenta">
-    <strong>Total Venta: </strong> <span id="totalVentaAmount">$0.00</span>
-</div>
-<div>
-    @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
-</div>
+    <div class="form-group">
+        <label>Total</label>
+        <input type="text" id="subtotal" class="form-control" readonly />
+    </div>
 
-@section Scripts {
-    <script type="text/javascript">
-        $(document).ready(function () {
+    <button type="button" id="agregarBtn" class="btn btn-primary">Agregar</button>
 
-            function actualizarTotalVenta() {
-                var totalVenta = 0;
+    <!-- Tabla del Carrito de Compras -->
+    <table id="carrito" class="table">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Producto</th>
+                <th>Stock</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los productos agregados al carrito aparecerán aquí -->
+        </tbody>
+    </table>
 
-                // Iterar sobre las filas del carrito y sumar los subtotales
-                $('#carrito tbody tr').each(function () {
-                    var subtotal = parseFloat($(this).find('.subtotal').text());
-                    totalVenta += subtotal;
-                });
+    <div id="totalVenta">
+        <strong>Total Venta: </strong> <span id="totalVentaAmount">$0.00</span>
+    </div>
+<button type="button" id="finalizarVentaBtn" class="btn btn-success">Finalizar Venta</button>
 
-                // Actualizar el elemento de visualización del total de venta
-                $('#totalVentaAmount').text('$' + totalVenta.toFixed(2));
-            }
+    <div>
+        @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
+    </div>
 
-            // Lógica de selección de categoría
-            $('#categoriaSelect').change(function () {
-                var categoriaId = $(this).val();
-                $.ajax({
-                    url: '@Url.Action("GetSubcategoriasPorCategoria", "Productos")',
-                    type: 'GET',
-                    data: { categoriaId: categoriaId },
-                    success: function (data) {
-                        $('#subcategoriaSelect').empty(); // Vacía el dropdown de subcategorías
-                        $('#subcategoriaSelect').append('<option value="">Seleccione una subcategoría</option>'); // Agrega la opción predeterminada
-                        $.each(data, function (index, subcategoria) {
-                            $('#subcategoriaSelect').append($('<option>', {
-                                value: subcategoria.value,
-                                text: subcategoria.text
-                            }));
-                        });
-                    },
-                    error: function (error) {
-                        console.log(error);
-                    }
-                });
-            });
+    <input type="hidden" id="totalVentaInput" value="0" />
 
-            // Lógica de selección de subcategoría
-            $('#subcategoriaSelect').change(function () {
-                var subcategoriaId = $(this).val();
-                $.ajax({
-                    url: '@Url.Action("GetProductos", "Productos")',
-                    type: 'GET',
-                    data: { idSubCategoria: subcategoriaId },
-                    success: function (data) {
-                        $('#productoSelect').empty();
-                        $('#productoSelect').append('<option value="">SeleccioneUn Producto</option>'); // Agrega la opción predeterminada
 
-                        $.each(data, function (index, producto) {
-                            $('#productoSelect').append($('<option>', {
-                                value: producto.value,
-                                text: producto.text
-                            }));
-                        });
-                    },
-                    error: function (error) {
-                        console.log(error);
-                    }
-                });
-            });
+    @section Scripts {
+        <script type="text/javascript">
+            $(document).ready(function () {
 
-            // Lógica de selección de producto
-            $('#productoSelect').change(function () {
-                var productoId = $(this).val();
-                $.ajax({
-                    url: '@Url.Action("ObtenerStockYPrecio", "Productos")',
-                    type: 'GET',
-                    data: { productoId: productoId },
-                    success: function (data) {
-                        $('#stock').val(data.stock);
-                        $('#precio').val(data.precio);
-                        calcularTotal();
-                    },
-                    error: function (error) {
-                        console.log(error);
-                    }
-                });
-            });
+                function actualizarTotalVenta() {
+                    var totalVenta = 0;
 
-            // Cálculo de total al cambiar la cantidad
-            $('#cantidad').change(function () {
-                var precio = $('#precio').val();
-                var cantidad = $(this).val();
-                $('#total').val((precio * cantidad).toFixed(2));
-            });
+                    // Iterar sobre las filas del carrito y sumar los subtotales
+                    $('#carrito tbody tr').each(function () {
+                        var subtotal = parseFloat($(this).find('.subtotal').text());
+                        totalVenta += subtotal;
+                    });
 
-            // Lógica para agregar producto al carrito
-            $('#agregarBtn').click(function () {
-                // Implementar agregado de producto al carrito
-            });
+                    // Actualizar el elemento de visualización del total de venta
+                    $('#totalVentaAmount').text('$' + totalVenta.toFixed(2));
 
-            function calcularTotal() {
-                var precio = parseFloat($('#precio').val());
-                var cantidad = parseInt($('#cantidad').val());
-                var total = isNaN(precio) || isNaN(cantidad) ? 0 : precio * cantidad;
-                $('#subtotal').val(total.toFixed(2));
-            }
+                    $('#totalVentaInput').val(totalVenta.toFixed(2)); // Asume que has añadido este input al HTML
 
-            $('#agregarBtn').click(function () {
-                var producto = $('#productoSelect option:selected').text();
-                var cantidad = $('#cantidad').val();
-                var precio = $('#precio').val();
-                var subtotal = $('#subtotal').val();
-
-                // Validar si los campos están vacíos
-                if (producto === "" || cantidad === "" || precio === "" || subtotal === "") {
-                    alert("Por favor, complete todos los campos antes de agregar el producto al carrito.");
-                    return; // Salir de la función si algún campo está vacío
                 }
 
-                // Agregar los datos a la tabla
-                $('#carrito tbody').append(
-                    '<tr>' +
-                    '<td>' + producto + '</td>' +
-                    '<td>' + cantidad + '</td>' +
-                    '<td>' + precio + '</td>' +
-                    '<td class="subtotal">' + subtotal + '</td>' +
-                    '<td><button class="btn btn-danger eliminarBtn">Eliminar</button></td>' +
-                    '</tr>'
-                );
+                // Lógica de selección de categoría
+                $('#categoriaSelect').change(function () {
+                    var categoriaId = $(this).val();
+                    $.ajax({
+                        url: '@Url.Action("GetSubcategoriasPorCategoria", "Productos")',
+                        type: 'GET',
+                        data: { categoriaId: categoriaId },
+                        success: function (data) {
+                            $('#subcategoriaSelect').empty(); // Vacía el dropdown de subcategorías
+                            $('#subcategoriaSelect').append('<option value="">Seleccione una subcategoría</option>'); // Agrega la opción predeterminada
+                            $.each(data, function (index, subcategoria) {
+                                $('#subcategoriaSelect').append($('<option>', {
+                                    value: subcategoria.value,
+                                    text: subcategoria.text
+                                }));
+                            });
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    });
+                });
 
-                // Actualizar el total de la venta
-                actualizarTotalVenta();
+                // Lógica de selección de subcategoría
+                $('#subcategoriaSelect').change(function () {
+                    var subcategoriaId = $(this).val();
+                    $.ajax({
+                        url: '@Url.Action("GetProductos", "Productos")',
+                        type: 'GET',
+                        data: { idSubCategoria: subcategoriaId },
+                        success: function (data) {
+                            $('#productoSelect').empty();
+                            $('#productoSelect').append('<option value="">SeleccioneUn Producto</option>'); // Agrega la opción predeterminada
 
-                // Limpiar los campos después de agregarlos
-                $('#categoriaSelect').val('');
-                $('#subcategoriaSelect').val('');
-                $('#productoSelect').val('');
-                $('#cantidad').val(1);
-                $('#stock').val('');
-                $('#precio').val('');
-                $('#subtotal').val('');
+                            $.each(data, function (index, producto) {
+                                $('#productoSelect').append($('<option>', {
+                                    value: producto.value,
+                                    text: producto.text
+                                }));
+                            });
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    });
+                });
+
+                // Lógica de selección de producto
+                $('#productoSelect').change(function () {
+                    var productoId = $(this).val();
+                    $.ajax({
+                        url: '@Url.Action("ObtenerStockYPrecio", "Productos")',
+                        type: 'GET',
+                        data: { productoId: productoId },
+                        success: function (data) {
+                            $('#stock').val(data.stock);
+                            $('#precio').val(data.precio);
+                            $('#idPro').val(data.id); // Establecer el ID del producto en un campo oculto
+                        actualizarDisponibilidad(); // Llama a esta función para actualizar la disponibilidad
+
+                        calcularTotal();
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    });
+                });
+
+            // Función para actualizar la disponibilidad
+            function actualizarDisponibilidad() {
+                var stock = parseInt($('#stock').val());
+                var cantidad = parseInt($('#cantidad').val());
+                if (!cantidad || cantidad < 1) { // Verifica si la cantidad es null o vacía
+                    $('#cantidad').val(1); // Si la cantidad es null, establece la cantidad en el valor del stock
+                    console.log(stock)
+                    $('#stockr').val(stock - cantidad);
+                }
+                if (cantidad > stock) {
+                    console.log(stock)
+                    $('#cantidad').val(1);
+                    $('#stockr').val(stock);// Establece la cantidad máxima disponible
+                    $('#agregarBtn').prop('disabled', true); // Deshabilita el botón de agregar
+                    alert('La cantidad ingresada es mayor que el stock disponible. Se ha ajustado al valor máximo.');
+                } else {
+                    $('#agregarBtn').prop('disabled', false); // Habilita el botón de agregar
+                    $('#stockr').val(stock - cantidad);
+
+                }
+                // Muestra la cantidad disponible restando la cantidad ingresada del stock total
+            }
+
+
+                // Cálculo de total al cambiar la cantidad
+                $('#cantidad').on('input', function () {
+                    var precio = parseFloat($('#precio').val());
+                    var cantidadString = $(this).val();
+                    actualizarDisponibilidad();
+                $('#subtotal').val((precio * parseFloat(cantidadString)).toFixed(2));
+                });
+
+
+
+
+                $('#cantidad').keypress(function (event) {
+                    // Permitir solo números y un punto decimal
+                    var charCode = (event.which) ? event.which : event.keyCode;
+                    var currentValue = $(this).val();
+
+                    if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+                        event.preventDefault();
+                    } else {
+                        // Evitar múltiples puntos decimales
+                        if (charCode == 46 && currentValue.indexOf('.') !== -1) {
+                            event.preventDefault();
+                        }
+
+                        // Validar longitud máxima antes y después del punto
+                        if (currentValue.indexOf('.') !== -1) {
+                            var partes = currentValue.split('.');
+                            var parteEntera = partes[0];
+                            var parteDecimal = partes[1] || '';
+                            if (parteEntera.length >= 3 || parteDecimal.length >= 2) {
+                                event.preventDefault();
+                            }
+                        } else {
+                            // Evitar ceros al principio
+                            if (currentValue.length === 0 && charCode == 48) {
+                                event.preventDefault();
+                            }
+                            // Permitir solo un punto decimal si ya hay dígitos
+                            if (charCode == 46 && currentValue.length > 0) {
+                                return;
+                            }
+                            // Limitar la longitud máxima antes del punto
+                            if (currentValue.length >= 3) {
+                                event.preventDefault();
+                            }
+                        }
+                    }
+                });
+
+                $('#cantidad').blur(function () {
+                    // Si el campo queda vacío o es cero, establecerlo como 1
+                    var cantidad = $(this).val();
+                    if (cantidad === '' || parseFloat(cantidad) === 0) {
+                        $(this).val('1');
+                    }
+                });
+
+
+          
+                function calcularTotal() {
+                    var precio = parseFloat($('#precio').val());
+                    var cantidad = parseInt($('#cantidad').val());
+                    var total = isNaN(precio) || isNaN(cantidad) ? 0 : precio * cantidad;
+                    $('#subtotal').val(total.toFixed(2));
+                    
+            }
+
+                $('#agregarBtn').click(function () {
+                    var producto = $('#productoSelect option:selected').text();
+                    var cantidad = $('#cantidad').val();
+                    var precio = $('#precio').val();
+                    var subtotal = $('#subtotal').val();
+                var productoId = $('#idPro').val();
+                    var stock = $('#stockr').val();
+
+                    // Validar si los campos están vacíos
+                    if (producto === "" || cantidad === "" || precio === "" || subtotal === "") {
+                        alert("Por favor, complete todos los campos antes de agregar el producto al carrito.");
+                        return; // Salir de la función si algún campo está vacío
+                    }
+
+                    // Agregar los datos a la tabla
+                    $('#carrito tbody').append(
+                        '<tr>' +
+                    '<td class="idPro">' + productoId + '</td>' +
+                        '<td>' + producto + '</td>' +
+                         '<td>' + stock + '</td>' +
+                        '<td>' + cantidad + '</td>' +
+                        '<td>' + precio + '</td>' +
+                        '<td class="subtotal">' + subtotal + '</td>' +
+                        '<td><button class="btn btn-danger eliminarBtn">Eliminar</button></td>' +
+                        '</tr>'
+                    );
+
+                    // Actualizar el total de la venta
+                    actualizarTotalVenta();
+
+                    // Limpiar los campos después de agregarlos
+                    $('#categoriaSelect').val('');
+                    $('#subcategoriaSelect').val('');
+                    $('#productoSelect').val('');
+                    $('#cantidad').val(1);
+                    $('#stock').val('');
+                    $('#stockr').val('');
+                    $('#precio').val('');
+                    $('#subtotal').val('');
+                });
+
+
+
+                // Lógica para eliminar producto del carrito
+                $(document).on('click', '.eliminarBtn', function () {
+                    $(this).closest('tr').remove();
+                    actualizarTotalVenta()
+                });
+
             });
 
-             
+        $('#finalizarVentaBtn').click(function () {
+            var productos = [];
+            $('#carrito tbody tr').each(function () {
+                var idProducto = $(this).find('td:eq(0)').text(); // Obtener el contenido de la primera celda (ID del producto)
+                var cantidad = $(this).find('td:eq(3)').text(); // Obtener el contenido de la tercera celda (cantidad)
+                var subtotal = $(this).find('td:eq(5)').text(); //
+                var stock = $(this).find('td:eq(2)').text(); // Obtener el contenido de la tercera celda (stock)
 
-            // Lógica para eliminar producto del carrito
-            $(document).on('click', '.eliminarBtn', function () {
-                $(this).closest('tr').remove();
-                actualizarTotalVenta()
+                productos.push({
+                    IdProProducto: idProducto,
+                    Cantidad: cantidad,
+                    Total: subtotal,
+                    Stock: stock
+
+                });
             });
-        
+
+            var ventaData = {
+                Folio: folio,
+                Productos: productos
+            };
+
+            var folio = $('#Folio').val(); // Obtener el folio de la venta
+
+            console.log('Folio de la venta:', folio); // Agregamos este console.log para mostrar el folio antes de enviarlo
+
+            console.log('Productos a enviar al controlador:', productos); // Agregamos este console.log para mostrar los productos antes de enviarlos
+
+            // Resto de tu código existente para enviar los datos al controlador
+            // Enviar los datos al controlador
+            $.ajax({
+                url: '@Url.Action("FinalizarVenta", "Productos")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ Folio: folio, Productos: productos }),
+                success: function (response) {
+                    console.log('Venta finalizada exitosamente', response);
+                    window.location.href = '@Url.Action("detalleVentas", "Productos")';
+                },
+                error: function (error) {
+                    console.error('Error al finalizar la venta', error);
+                }
+            });
         });
-    </script>
-}
+      
+   
+            $(document).ready(function () {
+                // Llama al método del controlador para obtener el último ID de venta y generar el folio
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("ObtenerUltimoIdVenta", "Productos")',
+                    success: function (ultimoIdVenta) {
+                        if (ultimoIdVenta) {
+                            // Genera el folio sumando 1 al último ID de venta
+                            var nuevoFolio = "F-" + (parseInt(ultimoIdVenta) + 1);
+                            // Asigna el folio al elemento de la vista
+                            $("#folio").text(nuevoFolio);
+                            // Asigna el folio al campo oculto para enviarlo al controlador al finalizar la venta
+                            $("#Folio").val(nuevoFolio);
+                        } else {
+                            // Si no hay ventas, el folio será F-1
+                            $("#folio").text("Folio-1");
+                            $("#Folio").val("Folio-1");
+                        }
+                    },
+                    error: function () {
+                        console.log("Error al obtener el último ID de venta.");
+                    }
+                });
+            });
+        </script>
+
+    }
+

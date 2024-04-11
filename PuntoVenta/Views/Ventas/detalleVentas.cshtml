@@ -1,0 +1,99 @@
+﻿@model List<PuntoVenta.Models.Productos.Products>
+@{
+    ViewBag.Title = "ventas";
+}
+<h2>@ViewBag.Title</h2>
+
+<head>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+</head>
+
+
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PuntoVenta</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Productos" asp-action="Productos">Productos</a>
+                        </li>
+
+                       
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+<div>
+    @Html.ActionLink("Crear Venta", "Ventas", "Productos", null, new { @class = "btn btn-primary" })
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>    
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venta in ViewBag.Ventas)
+            {
+                <tr>
+                    <td>@venta.strFolio</td>
+                    <td>@venta.dtFecha</td>
+                    <td>@venta.EstadoNombre</td>
+                    <td>
+                        <form method="post" asp-action="CancelarVenta" asp-route-strFolio="@venta.strFolio">
+                            <button type="submit" class="btn btn-danger">Cancelar Venta</button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("ImprimirTicket", "Productos", new { strFolio = @venta.strFolio })" class="btn btn-primary">Imprimir Ticket</a>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Agrega una función JavaScript para cancelar la venta
+    function cancelarVenta(idVenta) {
+        if (confirm("¿Estás seguro de querer cancelar esta venta?")) {
+            fetch("/Ventas/CancelarVenta/" + idVenta, { // Reemplaza "/Ventas/CancelarVenta/" con la ruta correcta en tu aplicación
+                method: "POST"
+            }).then(response => {
+                if (response.ok) {
+                    // Recargar la página después de cancelar la venta
+                    window.location.reload();
+                } else {
+                    alert("Error al cancelar la venta.");
+                }
+            }).catch(error => {
+                console.error("Error:", error);
+                alert("Error al cancelar la venta.");
+            });
+        }
+    }
+</script>
+
+  
