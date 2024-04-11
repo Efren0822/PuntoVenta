@@ -12,6 +12,8 @@ using PuntoVenta.ViewModels;
 using PuntoVenta.Helpers;
 using PuntoVenta.Servicios;
 
+
+
 namespace PuntoVenta.Controllers
 {
     public class UsuariosController : Controller
@@ -96,19 +98,23 @@ namespace PuntoVenta.Controllers
             {
                 return View(model);
             }
-            string username = model.Username.ToLower();
+            string username = model.Username;
             var user = _context.UsuUsuario.Any(u => u.strNombre == username && u.strPassword == model.Password);
-
+            
             if (user)
             {
                 TempData["Mensaje"] = "Bienvenido, " + model.Username + "";
-                return RedirectToAction("Index");
+                HttpContext.Session.SetString("Username", username);
+                Console.WriteLine($"Nombre de usuario Almacenado en la session: {username}");
+                return RedirectToAction("Index","Home");
+                //return RedirectToAction("CrearVenta", "Ventas");
+                
             }
             else
             {
                 ModelState.AddModelError("", "Nombre de usuario y/o contraseña incorrectos.");
                 TempData["MensajeErrorL"] = "Nombre de usuario y/o contraseña incorrecto";
-                
+                Console.WriteLine("Credenciales incorrectas");
                 return View(model);
             }
         }
@@ -355,59 +361,46 @@ namespace PuntoVenta.Controllers
         {
             if (id != usuario.Id)
             {
+                ModelState.AddModelError("", "El id del usuario recibido no coincide con el id proporcionado");
+                Console.WriteLine("Error:El id del usuario recibido no coincide con el id proporcionado");
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    _context.Update(usuario);
-                    _context.SaveChanges();
-                    return RedirectToAction("Index");
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "Ocurrió un error al guardar los cambios: " + ex.Message);
-                    Console.WriteLine("error: " + ex.Message);
-                    ViewBag.Estados = _context.UsuCatEstado
-                        .Select(e => new SelectListItem
-                        {
-                            Value = e.Id.ToString(),
-                            Text = e.strNombreEstado
-                        })
-                        .ToList();
-
-                    ViewBag.TiposUsuario = _context.UsuCatTipoUsuario
-                        .Select(t => new SelectListItem
-                        {
-                            Value = t.Id.ToString(),
-                            Text = t.strTipoUsuario
-                        })
-                        .ToList();
-
-                    return View(usuario);
-                }
+                _context.Update(usuario);
+                _context.SaveChanges();
+                TempData["MensajeEditar"] = "El usuario se modifico correctamente";
+                return RedirectToAction("Index");
             }
-            ModelState.AddModelError("", "Ocurrió un error al guardar los cambios: ");
-            Console.WriteLine("error: " );
-            ViewBag.Estados = _context.UsuCatEstado
-                .Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = e.strNombreEstado
-                })
-                .ToList();
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Ocurrió un error al guardar los cambios: " + ex.Message);
+                Console.WriteLine("error: " + ex.Message);
+                ViewBag.Estados = _context.UsuCatEstado
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.Id.ToString(),
+                        Text = e.strNombreEstado
+                    })
+                    .ToList();
 
-            ViewBag.TiposUsuario = _context.UsuCatTipoUsuario
-                .Select(t => new SelectListItem
-                {
-                    Value = t.Id.ToString(),
-                    Text = t.strTipoUsuario
-                })
-                .ToList();
+                ViewBag.TiposUsuario = _context.UsuCatTipoUsuario
+                    .Select(t => new SelectListItem
+                    {
+                        Value = t.Id.ToString(),
+                        Text = t.strTipoUsuario
+                    })
+                    .ToList();
 
-            return View(usuario);
+                return View(usuario);
+            }
+
+            
+     
+           
+
+         
         }
 
 
