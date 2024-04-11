@@ -573,8 +573,8 @@ namespace PuntoVenta.Controllers
 
                         if (producto != null)
                         {
-                            Paragraph productoInfo = new Paragraph($"Producto: {producto.StrNombrePro}, Cantidad: {detalle.decCantidad}, Subtotal: ${detalle.curTotal}");
-                            document.Add(productoInfo);
+                            //Paragraph productoInfo = new Paragraph($"Producto: {producto.StrNombrePro}, Cantidad: {detalle.decCantidad}, Subtotal: ${detalle.curTotal}");
+                            //document.Add(productoInfo);
 
                             // Agregar categoría y subcategoría del producto
                             var categoria = _context.Categorias.Find(producto.idProCatCategoria);
@@ -592,8 +592,8 @@ namespace PuntoVenta.Controllers
                     }
 
                     // Agregar total de la venta
-                    Paragraph total = new Paragraph($"Total Venta: ${venta.DetallesVentas.Sum(d => d.curTotal)}");
-                    document.Add(total);
+                   // Paragraph total = new Paragraph($"Total Venta: ${venta.DetallesVentas.Sum(d => d.curTotal)}");
+                    //document.Add(total);
 
                     // Agregar usuario que atendió
                     Paragraph atendidoPor = new Paragraph($"Atendido por: {venta.UsernameEmpleado}");
