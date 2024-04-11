@@ -9,9 +9,9 @@ using PuntoVenta.Servicios;
 var builder = WebApplication.CreateBuilder(args);
 
 
-//var connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
+var connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 
 
@@ -19,17 +19,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddControllersWithViews();
 
 
-/*
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
 {
     sqlOptions.EnableRetryOnFailure();
 }));
-*/
 
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString,
-    ServerVersion.Parse("8.0.28")));
+
+//builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString,
+//    ServerVersion.Parse("8.0.28")));
 
 
 builder.Services.AddSession(options =>
