@@ -495,126 +495,45 @@ namespace PuntoVenta.Controllers
             }
         }
 
-        //public IActionResult ImprimirTicket(string strFolio)
-        //{
-        //    Creamos un MemoryStream para almacenar el contenido del PDF
-        //    using (var stream = new MemoryStream())
-        //    {
-        //        Inicializamos un nuevo documento PDF
-        //       var writer = new PdfWriter(stream);
-        //        var pdf = new PdfDocument(writer);
-        //        iText.Layout.Document document = new iText.Layout.Document(pdf);
+        public IActionResult GenerarPdfVenta(string strFolio)
+        {
+            
+            var venta = _context.VenVenta.FirstOrDefault(v => v.strFolio == strFolio);
 
-        //        try
-        //        {
-        //            Agregamos el texto "Hola" al documento
-        //            Paragraph paragraph = new Paragraph("Hola");
-        //            document.Add(paragraph);
+            if (venta == null)
+            {
+                return NotFound();
+            }
 
-        //            Cerramos el documento
-        //            document.Close();
+           
+            var memoryStream = new MemoryStream();
+            var pdfWriter = new PdfWriter(memoryStream);
+            var pdfDocument = new PdfDocument(pdfWriter);
+            var document = new iText.Layout.Document(pdfDocument);
 
-        //            Convertimos el MemoryStream en un array de bytes para descargar el PDF
-        //            var pdfBytes = stream.ToArray();
+            
+            document.Add(new Paragraph($"Detalle de Venta - Folio: {venta.strFolio}"));
+            document.Add(new Paragraph($"Fecha: {venta.dtFecha.ToShortDateString()}"));
+            document.Add(new Paragraph($"Estado: {_context.venCatEstado.FirstOrDefault(e => e.idVenCatEstado == venta.idVenCatEstado)?.strNombre ?? "Estado no encontrado"}"));
 
-        //            Descargamos el PDF como un archivo adjunto
-        //            return File(pdfBytes, "application/pdf", "ticket.pdf");
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Manejamos cualquier excepción que pueda ocurrir durante la generación del PDF
-        //            En este caso, simplemente retornamos un mensaje de error
-        //            return Content($"Error al generar el ticket: {ex.Message}");
-        //        }
-        //    }
-        //}
+            
+            var productosVenta = _context.VenVentaProductos.Where(vp => vp.idVenVenta == venta.idVenVenta).ToList();
+            foreach (var productoVenta in productosVenta)
+            {
+                var producto = _context.Productos.FirstOrDefault(p => p.IdPro == productoVenta.idProProducto);
+                if (producto != null)
+                {
+                    document.Add(new Paragraph($"Producto: {producto.StrNombrePro}, Cantidad: {productoVenta.decCantidad}, Precio Total: {productoVenta.curTotal}"));
+                }
+            }
 
+            
+            document.Close();
 
-        //[HttpGet]
-        //public IActionResult ImprimirTicket(string strFolio)
-        //{
-        //    // Creamos un MemoryStream para almacenar el contenido del PDF
-        //    using (var stream = new MemoryStream())
-        //    {
-        //        // Inicializamos un nuevo documento PDF
-        //        var writer = new PdfWriter(stream);
-        //        var pdf = new PdfDocument(writer);
-        //        var document = new iText.Layout.Document(pdf);
+            
+            return File(memoryStream.ToArray(), "application/pdf", $"DetalleVenta_{strFolio}.pdf");
+        }
 
-        //        try
-        //        {
-        //            var venta = _context.VenVenta
-        //                               .Include(v => v.DetallesVentas)
-        //                               .ThenInclude(dv => dv)
-        //                               .FirstOrDefault(v => v.strFolio == strFolio);
-
-        //            // Si no se encuentra la venta, mostrar un mensaje de error
-        //            if (venta == null)
-        //            {
-        //                return Content($"No se encontró la venta con el folio {strFolio}");
-        //            }
-
-        //            // Agregar los datos de la venta al documento PDF
-        //            Paragraph titulo = new Paragraph("Detalle de la Venta");
-        //            document.Add(titulo);
-
-        //            // Agregar información de la venta al documento PDF
-        //            Paragraph folio = new Paragraph($"Folio: {venta.strFolio}");
-        //            document.Add(folio);
-
-        //            // Agregar fecha de la venta
-        //            Paragraph fecha = new Paragraph($"Fecha: {venta.dtFecha.ToShortDateString()}");
-        //            document.Add(fecha);
-
-        //            // Agregar detalles de los productos vendidos
-        //            foreach (var detalle in venta.DetallesVentas)
-        //            {
-        //                var producto = detalle.Producto as Products;  // Casting explícito
-
-        //                if (producto != null)
-        //                {
-        //                    //Paragraph productoInfo = new Paragraph($"Producto: {producto.StrNombrePro}, Cantidad: {detalle.decCantidad}, Subtotal: ${detalle.curTotal}");
-        //                    //document.Add(productoInfo);
-
-        //                    // Agregar categoría y subcategoría del producto
-        //                    var categoria = _context.Categorias.Find(producto.idProCatCategoria);
-        //                    var subcategoria = _context.SubCategorias.Find(producto.idProCatSubCategoria);
-
-        //                    if (categoria != null && subcategoria != null)
-        //                    {
-        //                        Paragraph categoriaInfo = new Paragraph($"Categoría: {categoria.strNombreCategoria}");
-        //                        document.Add(categoriaInfo);
-
-        //                        Paragraph subcategoriaInfo = new Paragraph($"Subcategoría: {subcategoria.strNombreSubCategoria}");
-        //                        document.Add(subcategoriaInfo);
-        //                    }
-        //                }
-        //            }
-
-        //            // Agregar total de la venta
-        //           // Paragraph total = new Paragraph($"Total Venta: ${venta.DetallesVentas.Sum(d => d.curTotal)}");
-        //            //document.Add(total);
-
-        //            // Agregar usuario que atendió
-        //            Paragraph atendidoPor = new Paragraph($"Atendido por: {venta.UsernameEmpleado}");
-        //            document.Add(atendidoPor);
-
-        //            // Cerrar el documento
-        //            document.Close();
-
-        //            // Convertir el MemoryStream en un array de bytes para descargar el PDF
-        //            var pdfBytes = stream.ToArray();
-
-        //            // Descargar el PDF como un archivo adjunto
-        //            return File(pdfBytes, "application/pdf", "ticket.pdf");
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            // Manejar cualquier excepción que pueda ocurrir durante la generación del PDF
-        //            return Content($"Error al generar el ticket: {ex.Message}");
-        //        }
-        //    }
-        //}
 
 
 
