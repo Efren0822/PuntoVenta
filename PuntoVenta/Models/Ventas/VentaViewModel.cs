@@ -5,6 +5,8 @@
         public List<ProductoVenta> Productos { get; set; }
         public string Folio { get; set; } // Agregar la propiedad Folio
 
+        public int UserId { get; set; }
+
     }
 
     public class ProductoVenta
