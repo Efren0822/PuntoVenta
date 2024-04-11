@@ -1,22 +1,7 @@
 ﻿    @model PuntoVenta.Models.Productos.Products
 
     @{
-        ViewData["Title"] = "Crear Venta";
-    }
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PuntoVenta</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-@{
-    ViewData["Title"] = "Crear Venta";
+        ViewData["Title"] = "Crear Venta";          
     var username = ViewBag.Username as string;
 }
 <header>
@@ -51,7 +36,7 @@
         </nav>
     </header>
 
-    <h2>Crear Venta</h2>
+    
 
     <div>
         <strong>Folio de la última venta:</strong> @ViewBag.UltimoFolioVenta
@@ -139,11 +124,11 @@
 <div id="totalVenta">
     <strong>Total Venta: </strong> <span id="totalVentaAmount">$0.00</span>
 </div>
-<div>
+@* <div>
     <button type="button" id="generarPdf" class="btn btn-success">Generar PDF</button>
     @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
 </div>
-
+ *@
     <input type="hidden" id="totalVentaInput" value="0" />
 
 
@@ -451,17 +436,4 @@
 
     }
 
-            // Lógica para eliminar producto del carrito
-            $(document).on('click', '.eliminarBtn', function () {
-                $(this).closest('tr').remove();
-                actualizarTotalVenta()
-            });
-
-            //Logica para generar pdf
-            $('#generarPdf').click(function () {
-
-            })
-        
-        });
-    </script>
-}
+      
