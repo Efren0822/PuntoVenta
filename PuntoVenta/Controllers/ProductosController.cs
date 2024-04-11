@@ -530,69 +530,93 @@ namespace PuntoVenta.Controllers
         //}
 
 
-    public IActionResult ImprimirTicket(string strFolio)
-{
-    // Creamos un MemoryStream para almacenar el contenido del PDF
-    using (var stream = new MemoryStream())
-    {
-        // Inicializamos un nuevo documento PDF
-        var writer = new PdfWriter(stream);
-        var pdf = new PdfDocument(writer);
-        var document = new iText.Layout.Document(pdf);
-
-        try
+        [HttpGet]
+        public IActionResult ImprimirTicket(string strFolio)
         {
-            // Consultar los datos de la venta correspondiente al folio proporcionado (suponiendo que tienes acceso al contexto de la base de datos)
-            var venta = _context.VenVenta.FirstOrDefault(v => v.strFolio == strFolio);
-
-            // Si no se encuentra la venta, mostrar un mensaje de error
-            if (venta == null)
+            // Creamos un MemoryStream para almacenar el contenido del PDF
+            using (var stream = new MemoryStream())
             {
-                return Content($"No se encontró la venta con el folio {strFolio}");
+                // Inicializamos un nuevo documento PDF
+                var writer = new PdfWriter(stream);
+                var pdf = new PdfDocument(writer);
+                var document = new iText.Layout.Document(pdf);
+
+                try
+                {
+                    var venta = _context.VenVenta
+                                       .Include(v => v.DetallesVentas)
+                                       .ThenInclude(dv => dv.Producto)
+                                       .FirstOrDefault(v => v.strFolio == strFolio);
+
+                    // Si no se encuentra la venta, mostrar un mensaje de error
+                    if (venta == null)
+                    {
+                        return Content($"No se encontró la venta con el folio {strFolio}");
+                    }
+
+                    // Agregar los datos de la venta al documento PDF
+                    Paragraph titulo = new Paragraph("Detalle de la Venta");
+                    document.Add(titulo);
+
+                    // Agregar información de la venta al documento PDF
+                    Paragraph folio = new Paragraph($"Folio: {venta.strFolio}");
+                    document.Add(folio);
+
+                    // Agregar fecha de la venta
+                    Paragraph fecha = new Paragraph($"Fecha: {venta.dtFecha.ToShortDateString()}");
+                    document.Add(fecha);
+
+                    // Agregar detalles de los productos vendidos
+                    foreach (var detalle in venta.DetallesVentas)
+                    {
+                        var producto = detalle.Producto as Products;  // Casting explícito
+
+                        if (producto != null)
+                        {
+                            Paragraph productoInfo = new Paragraph($"Producto: {producto.StrNombrePro}, Cantidad: {detalle.decCantidad}, Subtotal: ${detalle.curTotal}");
+                            document.Add(productoInfo);
+
+                            // Agregar categoría y subcategoría del producto
+                            var categoria = _context.Categorias.Find(producto.idProCatCategoria);
+                            var subcategoria = _context.SubCategorias.Find(producto.idProCatSubCategoria);
+
+                            if (categoria != null && subcategoria != null)
+                            {
+                                Paragraph categoriaInfo = new Paragraph($"Categoría: {categoria.strNombreCategoria}");
+                                document.Add(categoriaInfo);
+
+                                Paragraph subcategoriaInfo = new Paragraph($"Subcategoría: {subcategoria.strNombreSubCategoria}");
+                                document.Add(subcategoriaInfo);
+                            }
+                        }
+                    }
+
+                    // Agregar total de la venta
+                    Paragraph total = new Paragraph($"Total Venta: ${venta.DetallesVentas.Sum(d => d.curTotal)}");
+                    document.Add(total);
+
+                    // Agregar usuario que atendió
+                    Paragraph atendidoPor = new Paragraph($"Atendido por: {venta.UsernameEmpleado}");
+                    document.Add(atendidoPor);
+
+                    // Cerrar el documento
+                    document.Close();
+
+                    // Convertir el MemoryStream en un array de bytes para descargar el PDF
+                    var pdfBytes = stream.ToArray();
+
+                    // Descargar el PDF como un archivo adjunto
+                    return File(pdfBytes, "application/pdf", "ticket.pdf");
+                }
+                catch (Exception ex)
+                {
+                    // Manejar cualquier excepción que pueda ocurrir durante la generación del PDF
+                    return Content($"Error al generar el ticket: {ex.Message}");
+                }
             }
-
-            // Agregar los datos de la venta al documento PDF
-            Paragraph titulo = new Paragraph("Detalle de la Venta");
-            document.Add(titulo);
-
-            // Agregar información de la venta al documento PDF
-            Paragraph folio = new Paragraph($"Folio: {venta.strFolio}");
-            document.Add(folio);
-
-            // Agregar fecha de la venta
-            Paragraph fecha = new Paragraph($"Fecha: {venta.dtFecha.ToShortDateString()}");
-            document.Add(fecha);
-
-            //// Agregar información del cliente si está disponible
-            //if (venta.Cliente != null)
-            //{
-            //    Paragraph cliente = new Paragraph($"Cliente: {venta.Cliente.Nombre} ({venta.Cliente.Correo})");
-            //    document.Add(cliente);
-            //}
-
-            //// Agregar detalles de los productos vendidos
-            //foreach (var detalle in venta.DetallesVenta)
-            //{
-            //    Paragraph producto = new Paragraph($"Producto: {detalle.Producto.Nombre}, Cantidad: {detalle.Cantidad}, Precio Unitario: {detalle.PrecioUnitario}");
-            //    document.Add(producto);
-            //}
-
-            // Cerrar el documento
-            document.Close();
-
-            // Convertir el MemoryStream en un array de bytes para descargar el PDF
-            var pdfBytes = stream.ToArray();
-
-            // Descargar el PDF como un archivo adjunto
-            return File(pdfBytes, "application/pdf", "ticket.pdf");
         }
-        catch (Exception ex)
-        {
-            // Manejar cualquier excepción que pueda ocurrir durante la generación del PDF
-            return Content($"Error al generar el ticket: {ex.Message}");
-        }
-    }
-}
+
+
 
 
     }
