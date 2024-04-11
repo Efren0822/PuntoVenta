@@ -545,7 +545,7 @@ namespace PuntoVenta.Controllers
                 {
                     var venta = _context.VenVenta
                                        .Include(v => v.DetallesVentas)
-                                       .ThenInclude(dv => dv.Producto)
+                                       .ThenInclude(dv => dv)
                                        .FirstOrDefault(v => v.strFolio == strFolio);
 
                     // Si no se encuentra la venta, mostrar un mensaje de error
