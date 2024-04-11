@@ -206,10 +206,16 @@ namespace PuntoVenta.Controllers
         }
 
         [HttpGet]
-        public IActionResult Ventas()
+        public async Task<IActionResult> Ventas()
         {
+            var userId = await ObtenerUserId();
+
+            ViewBag.UserId = userId;
+
+            Console.WriteLine($"Usuario obtenido correctamente: {userId}");
             // Carga las categorías para el dropdown
             ViewBag.Categorias = new SelectList(_context.Categorias, "IdCat", "strNombreCategoria");
+
 
             // Inicializa la lista de subcategorías y productos como vacía
             ViewBag.SubCategorias = new SelectList(Enumerable.Empty<SelectListItem>());
@@ -218,7 +224,28 @@ namespace PuntoVenta.Controllers
             // Define la lista de categorías para el dropdown de categorías
             ViewBag.idProCatCategoria = new SelectList(_context.Categorias, "IdCat", "strNombreCategoria");
 
+            var username = HttpContext.Session.GetString("Username");
+            ViewBag.Username = username;
             return View("~/Views/Ventas/Ventas.cshtml");
+        }
+
+
+        private async Task<int?> ObtenerUserId()
+        {
+            Console.WriteLine("Controlador de ventas");
+            var username = HttpContext.Session.GetString("Username");
+            Console.WriteLine($"Usuario obtenido correctamente: {username}");
+
+            var usuario = await _context.UsuUsuario.FirstOrDefaultAsync(u => u.strNombre == username);
+
+            if (usuario != null)
+            {
+                return usuario.Id;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public JsonResult GetSubCategorias(int idCategoria)
@@ -296,6 +323,40 @@ namespace PuntoVenta.Controllers
 
             // Redirigir a la vista de ventas
             return RedirectToAction("detalleVentas");
+        }
+
+
+        public ActionResult MostrarUsuario()
+        {
+
+
+            Console.WriteLine("Controlador de ventas");
+            var username = HttpContext.Session.GetString("Username");
+            if (!string.IsNullOrEmpty(username))
+            {
+                Console.WriteLine($"Usuario obtenido correctamente: {username}");
+                return View();
+            }
+            else
+            {
+                Console.WriteLine("Nombre de usuario no encontrado");
+                return RedirectToAction("Ventas", "Ventas");
+            }
+
+        }
+        public ActionResult Mostrar()
+        {
+
+            Console.WriteLine("Controlador de ventas");
+            var username = HttpContext.Session.GetString("Username");
+            if (string.IsNullOrEmpty(username))
+            {
+                return RedirectToAction("Ventas", "Ventas");
+            }
+            var model = new VenVenta();
+            ViewBag.Username = username;
+            return View(model);
+
         }
 
 

@@ -99,12 +99,13 @@ namespace PuntoVenta.Controllers
                 return View(model);
             }
             string username = model.Username;
+            HttpContext.Session.SetString("Username", username);
             var user = _context.UsuUsuario.Any(u => u.strNombre == username && u.strPassword == model.Password);
             
             if (user)
             {
                 TempData["Mensaje"] = "Bienvenido, " + model.Username + "";
-                HttpContext.Session.SetString("Username", username);
+                
                 Console.WriteLine($"Nombre de usuario Almacenado en la session: {username}");
                 return RedirectToAction("Index","Home");
                 //return RedirectToAction("CrearVenta", "Ventas");

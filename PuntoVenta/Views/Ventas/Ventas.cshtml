@@ -38,8 +38,6 @@
 
     
 
-<h2>Crear Venta</h2>
-
     <div>
         <strong>Folio de la última venta:</strong> @ViewBag.UltimoFolioVenta
     </div>
@@ -87,21 +85,14 @@
         <input type="text" id="subtotal" class="form-control" readonly />
     </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h4>Atendido por: <span id="username">@username</span></h4>
-        </div>
-    </div>
-</div>
-
 <div>
-    @Html.ActionLink("Mostrar usuario","MostrarUsuario",null,new{@class="btn btn-primary"})
+    <h4>Atendido por: <span id="username">@ViewBag.Username</span></h4>
+    <input type="hidden" id="userId" value="@ViewBag.UserId" />
 </div>
 
 <button type="button" id="agregarBtn" class="btn btn-primary">Agregar</button>
 
-    <!-- Tabla del Carrito de Compras -->
+  
     <table id="carrito" class="table">
         <thead>
             <tr>
@@ -128,14 +119,6 @@
         @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
     </div>
 
-<div id="totalVenta">
-    <strong>Total Venta: </strong> <span id="totalVentaAmount">$0.00</span>
-</div>
-@* <div>
-    <button type="button" id="generarPdf" class="btn btn-success">Generar PDF</button>
-    @Html.ActionLink("Regresar", "Index", "Home", null, new { @class = "btn btn-secondary" })
-</div>
- *@
     <input type="hidden" id="totalVentaInput" value="0" />
 
 

@@ -27,11 +27,11 @@ options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
 }));
 
 
+/*
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString,
+    ServerVersion.Parse("8.0.28")));
 
-//builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString,
-//    ServerVersion.Parse("8.0.28")));
-
-
+*/
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(15);
